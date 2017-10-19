@@ -81,6 +81,10 @@ void ObjectDetectionDisplay::onInitialize()
   render_sensor_type_property_ =
       new rviz::BoolProperty("Render sensor type text", false,
                              "Render detection sensor type as text below detected object", this, SLOT(stylesChanged()));
+      
+  render_pose_property_ =
+      new rviz::BoolProperty("Render pose arrow", false,
+                             "Render pose for detected object", this, SLOT(stylesChanged()));
 
   color_property_ =
       new rviz::ColorProperty("Color", Qt::black, "Color of detected object", this, SLOT(stylesChanged()));
@@ -113,7 +117,9 @@ void ObjectDetectionDisplay::stylesChanged()
     object_detection_visual->setColor(color_property_->getOgreColor());
     object_detection_visual->setVisiblities(render_covariances_property_->getBool(), 
                                             render_ids_property_->getBool(),
-                                            render_sensor_type_property_->getBool());
+                                            render_sensor_type_property_->getBool(),
+                                            render_pose_property_->getBool()
+                                           );
     object_detection_visual->setStyle(static_cast<Styles>(style_property_->getOptionInt()));
   }
 }
@@ -180,3 +186,4 @@ void ObjectDetectionDisplay::processMessage(const tuw_object_msgs::ObjectDetecti
 // global scope, outside our package's namespace.
 #include <pluginlib/class_list_macros.h>
 PLUGINLIB_EXPORT_CLASS(tuw_object_rviz::ObjectDetectionDisplay, rviz::Display)
+

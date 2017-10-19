@@ -93,7 +93,7 @@ public:
     // parameter and therefore don't come from the message.
     virtual void setColor ( Ogre::ColourValue color );
 
-    void setVisiblities ( bool render_covariance, bool render_id, bool render_sensor_type );
+    void setVisiblities ( bool render_covariance, bool render_id, bool render_sensor_type, bool render_pose );
 
     virtual void setStyle ( Styles style );
 

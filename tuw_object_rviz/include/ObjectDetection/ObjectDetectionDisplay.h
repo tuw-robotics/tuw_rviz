@@ -99,6 +99,7 @@ private:
   rviz::BoolProperty* render_covariances_property_;
   rviz::BoolProperty* render_ids_property_;
   rviz::BoolProperty* render_sensor_type_property_;
+  rviz::BoolProperty* render_pose_property_;
   rviz::ColorProperty* color_property_;
   rviz::EnumProperty* style_property_;
 };

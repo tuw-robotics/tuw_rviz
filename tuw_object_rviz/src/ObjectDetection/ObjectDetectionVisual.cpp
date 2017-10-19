@@ -96,6 +96,7 @@ void ObjectDetectionVisual::setMessage(const tuw_object_msgs::ObjectWithCovarian
     covariance_->setOrientation(orientation);
     covariance_->setPosition(position);
     covariance_->setMeanCovariance(Ogre::Vector3(0, 0, 0), C);
+    covariance_->setLineWidth(0.05);
   }
   else
   {
@@ -105,8 +106,11 @@ void ObjectDetectionVisual::setMessage(const tuw_object_msgs::ObjectWithCovarian
 
   pose_->setPosition(position);
   pose_->setDirection(vel);
+  
+  pose_->setScale(Ogre::Vector3(0.02 * position.distance(vel), 0.5, 0.5));
 
   // only show arrow if velocity > 0 (in any direction)
+  /*
   if (vel == Ogre::Vector3::ZERO)
   {
     pose_->getSceneNode()->setVisible(false, true);
@@ -114,7 +118,7 @@ void ObjectDetectionVisual::setMessage(const tuw_object_msgs::ObjectWithCovarian
   else
   {
     pose_->getSceneNode()->setVisible(true, true);
-  }
+  }*/
 
   mean_->setPosition(position);
   mean_->setScale(Ogre::Vector3(0.1, 0.1, 0.1));
@@ -166,7 +170,7 @@ void ObjectDetectionVisual::setTransform(const Ogre::Vector3& position, const Og
 // Scale is passed through to the pose Shape object.
 void ObjectDetectionVisual::setScale(float scale)
 {
-  pose_->setScale(Ogre::Vector3(scale, scale, scale));
+  //pose_->setScale(Ogre::Vector3(scale, scale, scale));
   mean_->setScale(Ogre::Vector3(scale, scale, scale));
   covariance_->setLineWidth(scale);
   scale_ = scale;
@@ -182,10 +186,11 @@ void ObjectDetectionVisual::setColor(Ogre::ColourValue color)
   color_ = color;
 }
 
-void ObjectDetectionVisual::setVisiblities(bool render_covariance, bool render_id, bool render_sensor_type)
+void ObjectDetectionVisual::setVisiblities(bool render_covariance, bool render_id, bool render_sensor_type, bool render_pose)
 {
   covariance_->setVisible(render_covariance);
   detection_id_->setVisible(render_id);
+  pose_->getSceneNode()->setVisible(render_pose, true);
 }
 
 void ObjectDetectionVisual::setStyle(Styles style)
