@@ -39,6 +39,7 @@
 #include <ObjectDetection/CovarianceVisual.h>
 #include <ObjectDetection/TextVisual.h>
 #include <ObjectDetection/common.h>
+#include <boost/format.hpp>
 
 namespace Ogre
 {

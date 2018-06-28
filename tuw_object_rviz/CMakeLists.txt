@@ -155,10 +155,12 @@ add_definitions(-DQT_NO_KEYWORDS)
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
   include/ObjectDetection/ObjectDetectionVisual.h
+  include/ObjectDetection/ObjectDetectionDoorVisual.h
   include/ObjectDetection/ObjectDetectionDisplay.h
   include/ObjectDetection/CovarianceVisual.h
   include/ObjectDetection/TextVisual.h
   include/ObjectDetection/PersonVisual.h
+  include/ObjectDetection/DoorVisual.h
   include/ObjectDetection/mesh_node.h
   include/ObjectDetection/ObjectDetectionPersonVisual.h
   src/ObjectDetection/ObjectDetectionVisual.cpp
@@ -167,6 +169,8 @@ add_library(${PROJECT_NAME}
   src/ObjectDetection/TextVisual.cpp
   src/ObjectDetection/PersonVisual.cpp
   src/ObjectDetection/ObjectDetectionPersonVisual.cpp
+  src/ObjectDetection/ObjectDetectionDoorVisual.cpp
+  src/ObjectDetection/DoorVisual.cpp
 )
 
 ## Add cmake target dependencies of the library
