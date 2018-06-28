@@ -41,7 +41,8 @@ namespace tuw_object_rviz
 {
 ObjectDetectionDoorVisual::ObjectDetectionDoorVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node) : ObjectDetectionVisual(scene_manager, parent_node)
 {
-  door_visual_.reset(new CylinderDoorVisual(DoorVisualDefaultArgs(scene_manager_, frame_node_)));
+  door_visual_.reset(new BoundingBoxDoorVisual(
+                       DoorVisualDefaultArgs(scene_manager_, frame_node_)));
 }
 
 ObjectDetectionDoorVisual::~ObjectDetectionDoorVisual()
@@ -60,9 +61,18 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
 
   Ogre::Quaternion orientation = Ogre::Quaternion(msg->object.pose.orientation.w, msg->object.pose.orientation.x,
                                                   msg->object.pose.orientation.y, msg->object.pose.orientation.z);
-
+  double width = msg->object.shape_variables[0];
+  double height = msg->object.shape_variables[1];
+  double oangle = msg->object.shape_variables[2];
+  door_visual_->setWidth(width);
+  door_visual_->setHeight(height);
   door_visual_->setPosition(position + Ogre::Vector3(0, 0, door_visual_->getHeight() / 2));
   door_visual_->setOrientation(orientation);
+  boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::BoundingBoxDoorVisual>(door_visual_);
+  if (dv_bb)
+  {
+    dv_bb->generateWireframe();
+  }
 }
 
 // Color is passed through to the pose Shape object.

@@ -18,6 +18,11 @@ namespace fs = boost::filesystem;
 
 namespace tuw_object_rviz {
 
+    class HasWireframe {
+      public:
+        virtual void generateWireframe() = 0;
+    };
+
     // Default arguments that need to be supplied to all types of DoorVisual
     struct DoorVisualDefaultArgs {
         DoorVisualDefaultArgs(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode) : sceneManager(sceneManager), parentNode(parentNode) {}
@@ -46,6 +51,10 @@ namespace tuw_object_rviz {
 
         Ogre::SceneNode* getParentSceneNode();
 
+        virtual void setHeight(double height);
+
+        virtual void setWidth(double width);
+
         virtual void update(float deltaTime);
 
         virtual void setColor(const Ogre::ColourValue& c) = 0;
@@ -58,10 +67,11 @@ namespace tuw_object_rviz {
         Ogre::SceneManager* m_sceneManager;
         Ogre::SceneNode *m_sceneNode, *m_parentSceneNode;
         Ogre::ColourValue m_color;
+        double m_width, m_height;
     };
 
     /// Visualization of a person as a wireframe bounding box
-    class BoundingBoxDoorVisual : public DoorVisual, public tuw_object_rviz::HasLineWidth {
+    class BoundingBoxDoorVisual : public DoorVisual, public tuw_object_rviz::HasLineWidth, public tuw_object_rviz::HasWireframe {
     public:
         BoundingBoxDoorVisual ( const DoorVisualDefaultArgs& args, double height = 1.75, double width = 0.6, double scalingFactor = 1.0 );
 
@@ -75,16 +85,14 @@ namespace tuw_object_rviz {
 
         virtual void setLineWidth(double lineWidth);
 
+        virtual void generateWireframe();
         /*
         virtual void setScalingFactor(double scalingFactor);
         */
 
-    protected:
-        virtual void generateWireframe();
-
     private:
         rviz::BillboardLine *m_wireframe;
-        double m_width, m_height, m_scalingFactor, m_lineWidth;
+        double m_scalingFactor, m_lineWidth;
     };
 
     /// Visualization of a person as cylinder (body) + sphere (head)

@@ -44,6 +44,7 @@
 #include <ObjectDetection/ObjectDetectionDisplay.h>
 #include <ObjectDetection/ObjectDetectionVisual.h>
 #include <ObjectDetection/ObjectDetectionPersonVisual.h>
+#include <ObjectDetection/ObjectDetectionDoorVisual.h>
 
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
@@ -140,6 +141,10 @@ void ObjectDetectionDisplay::processMessage(const tuw_object_msgs::ObjectDetecti
     if(msg->type == tuw_object_msgs::ObjectDetection::OBJECT_TYPE_PERSON)
     {
       detected_object_visual = boost::shared_ptr<ObjectDetectionVisual>(new ObjectDetectionPersonVisual(context_->getSceneManager(), scene_node_));
+    }
+    else if(detected_object_it->object.shape == tuw_object_msgs::Object::SHAPE_DOOR)
+    {
+      detected_object_visual = boost::shared_ptr<ObjectDetectionVisual>(new ObjectDetectionDoorVisual(context_->getSceneManager(), scene_node_));
     }
     else
     {

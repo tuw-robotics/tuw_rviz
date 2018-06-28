@@ -91,6 +91,16 @@ Ogre::SceneNode* DoorVisual::getParentSceneNode() {
     return m_parentSceneNode;
 }
 
+void DoorVisual::setHeight(double height)
+{
+  m_height = height;
+}
+
+void DoorVisual::setWidth(double width)
+{
+  m_width = width;
+}
+
 void DoorVisual::update(float deltaTime) {}
 
 /*
@@ -173,7 +183,7 @@ void BoundingBoxDoorVisual::generateWireframe() {
     m_wireframe->setMaxPointsPerLine(2);
     m_wireframe->setNumLines(12);
 
-    double w = m_width * m_scalingFactor, h = m_height * m_scalingFactor;
+    double w = m_width, h = m_height;
     Ogre::Vector3 bottomLeft(0, -w, 0), bottomRight(0, 0, 0), topLeft(0, -w, h), topRight(0, 0, h);
     Ogre::Vector3 rear(w, 0, 0);
 
