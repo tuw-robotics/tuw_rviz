@@ -35,22 +35,22 @@
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
 
-#include <ObjectDetection/ObjectDetectionDoorVisual.h>
+#include <ObjectDetection/ObjectDetectionTrafficConeVisual.h>
 
 namespace tuw_object_rviz
 {
-ObjectDetectionDoorVisual::ObjectDetectionDoorVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node) : ObjectDetectionVisual(scene_manager, parent_node)
+ObjectDetectionTrafficConeVisual::ObjectDetectionTrafficConeVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node) : ObjectDetectionVisual(scene_manager, parent_node)
 {
-  door_visual_.reset(new BoundingBoxDoorVisual(
-                       DoorVisualDefaultArgs(scene_manager_, frame_node_)));
+  traffic_cone_visual_.reset(new TrafficConeVisualImpl(
+                       TrafficConeVisualDefaultArgs(scene_manager_, frame_node_)));
 }
 
-ObjectDetectionDoorVisual::~ObjectDetectionDoorVisual()
+ObjectDetectionTrafficConeVisual::~ObjectDetectionTrafficConeVisual()
 {
   // empty destructor since parent destructor destroys frame node anyway
 }
 
-void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCovariance::ConstPtr& msg)
+void ObjectDetectionTrafficConeVisual::setMessage(const tuw_object_msgs::ObjectWithCovariance::ConstPtr& msg)
 {
   // call parent class set Message to also display covariance, center, ids
   ObjectDetectionVisual::setMessage(msg);
@@ -59,50 +59,71 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   position = transform_ * position;
   position.z = 0;  // fix on ground z=0
 
+  double c_90 = cos(M_PI/2.0);
+  double s_90 = sin(M_PI/2.0);
+  Ogre::Matrix3 R_x(1,0,0,
+                    0,c_90,-s_90,
+                    0,s_90,c_90);
+  Ogre::Quaternion q_flip;
+  q_flip.FromRotationMatrix(R_x);
+
   Ogre::Quaternion orientation = Ogre::Quaternion(msg->object.pose.orientation.w, msg->object.pose.orientation.x,
                                                   msg->object.pose.orientation.y, msg->object.pose.orientation.z);
-  double width = msg->object.shape_variables[0];
+  orientation = q_flip * orientation;
+  double radius = msg->object.shape_variables[0];
   double height = msg->object.shape_variables[1];
-  double oangle = msg->object.shape_variables[2];
-  door_visual_->setWidth(width);
-  door_visual_->setHeight(height);
-  boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::HasWireframe>(door_visual_);
-  if (dv_bb)
+  int color = (int) msg->object.shape_variables[2];
+  traffic_cone_visual_->setRadius(radius);
+  traffic_cone_visual_->setHeight(height);
+  Ogre::ColourValue c(0,0,0,1.0);
+  if (color == 1) // blue
   {
-    dv_bb->generateWireframe();
+    c.b = 1.0;
   }
-  door_visual_->setPosition(position + Ogre::Vector3(0, 0, door_visual_->getHeight() / 2));
-  door_visual_->setOrientation(orientation);
+  else if (color == 2) // yellow
+  {
+    c.r = 1.0;
+    c.g = 1.0;
+  }
+  else if (color == 3)
+  {
+    c.r = 1.0;
+  }
+
+  traffic_cone_visual_->setColor(c);
+  traffic_cone_visual_->setPosition(position + Ogre::Vector3(0, 0, height/2.0));
+  traffic_cone_visual_->setOrientation(orientation);
+  traffic_cone_visual_->update(0.0);
 }
 
 // Color is passed through to the pose Shape object.
-void ObjectDetectionDoorVisual::setColor(Ogre::ColourValue color)
+void ObjectDetectionTrafficConeVisual::setColor(Ogre::ColourValue color)
 {
   ObjectDetectionVisual::setColor(color);
-  door_visual_->setColor(color);
+  //traffic_cone_visual_->setColor(color);
 }
 
-void ObjectDetectionDoorVisual::setStyle(Styles style)
+void ObjectDetectionTrafficConeVisual::setStyle(Styles style)
 {
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
   Ogre::ColourValue color;
-  DoorVisualDefaultArgs default_args(scene_manager_, frame_node_);
+  TrafficConeVisualDefaultArgs default_args(scene_manager_, frame_node_);
 
-  position = door_visual_->getPosition();
-  orientation = door_visual_->getOrientation();
-  color = door_visual_->getColor();
+  position = traffic_cone_visual_->getPosition();
+  orientation = traffic_cone_visual_->getOrientation();
+  color = traffic_cone_visual_->getColor();
 
   switch (style)
   {
     case STYLE_BOUNDING_BOXES:
-      door_visual_.reset(new BoundingBoxDoorVisual(default_args));
+      traffic_cone_visual_.reset(new TrafficConeVisualImpl(default_args));
       break;
   }
 
-  door_visual_->setOrientation(orientation);
-  door_visual_->setPosition(position);
-  door_visual_->setColor(color);
+  traffic_cone_visual_->setOrientation(orientation);
+  traffic_cone_visual_->setPosition(position);
+  traffic_cone_visual_->setColor(color);
 
 }
 

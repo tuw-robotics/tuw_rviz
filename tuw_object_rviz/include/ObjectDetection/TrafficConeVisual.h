@@ -1,5 +1,5 @@
-#ifndef DOORVISUAL_H
-#define DOORVISUAL_H
+#ifndef TrafficConeVISUAL_H
+#define TrafficConeVISUAL_H
 
 #include <rviz/ogre_helpers/shape.h>
 #include <rviz/ogre_helpers/billboard_line.h>
@@ -18,24 +18,19 @@ namespace fs = boost::filesystem;
 
 namespace tuw_object_rviz {
 
-    class HasWireframe {
-      public:
-        virtual void generateWireframe() = 0;
-    };
-
-    // Default arguments that need to be supplied to all types of DoorVisual
-    struct DoorVisualDefaultArgs {
-        DoorVisualDefaultArgs(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode) : sceneManager(sceneManager), parentNode(parentNode) {}
+    // Default arguments that need to be supplied to all types of TrafficConeVisual
+    struct TrafficConeVisualDefaultArgs {
+        TrafficConeVisualDefaultArgs(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode) : sceneManager(sceneManager), parentNode(parentNode) {}
         Ogre::SceneManager* sceneManager;
         Ogre::SceneNode* parentNode;
     };
 
     /// Base class for all person visualization types
-    class DoorVisual {
+    class TrafficConeVisual {
     public:
-        DoorVisual(const DoorVisualDefaultArgs& args);
+        TrafficConeVisual(const TrafficConeVisualDefaultArgs& args);
 
-        virtual ~DoorVisual();
+        virtual ~TrafficConeVisual();
 
         void setPosition(const Ogre::Vector3& position);
 
@@ -53,7 +48,7 @@ namespace tuw_object_rviz {
 
         virtual void setHeight(double height);
 
-        virtual void setWidth(double width);
+        virtual void setRadius(double radius);
 
         virtual void update(float deltaTime);
 
@@ -67,15 +62,15 @@ namespace tuw_object_rviz {
         Ogre::SceneManager* m_sceneManager;
         Ogre::SceneNode *m_sceneNode, *m_parentSceneNode;
         Ogre::ColourValue m_color;
-        double m_width, m_height;
+        double m_width, m_height, m_radius;
     };
 
     /// Visualization of a person as a wireframe bounding box
-    class BoundingBoxDoorVisual : public DoorVisual, public tuw_object_rviz::HasLineWidth, public tuw_object_rviz::HasWireframe {
+    class TrafficConeVisualImpl : public TrafficConeVisual {
     public:
-        BoundingBoxDoorVisual ( const DoorVisualDefaultArgs& args, double height = 1.75, double width = 0.6, double scalingFactor = 1.0 );
+        TrafficConeVisualImpl ( const TrafficConeVisualDefaultArgs& args, double height = 1.75, double radius = 0.6);
 
-        virtual ~BoundingBoxDoorVisual();
+        virtual ~TrafficConeVisualImpl();
 
         virtual void setColor(const Ogre::ColourValue& c);
 
@@ -83,25 +78,27 @@ namespace tuw_object_rviz {
 
         virtual double getHeight();
 
-        virtual void setLineWidth(double lineWidth);
+        virtual void setHeight(double height);
 
-        virtual void generateWireframe();
+        virtual void setRadius(double radius);
+
+        virtual void update(float deltaTime);
         /*
         virtual void setScalingFactor(double scalingFactor);
         */
 
     private:
-        rviz::BillboardLine *m_wireframe;
-        double m_scalingFactor, m_lineWidth;
-        double m_thickness;
+        rviz::Shape *m_bodyShape;
+        double m_height;
+        double m_radius;
     };
 
 //    /// Visualization of a person as cylinder (body) + sphere (head)
-//    class CylinderDoorVisual : public DoorVisual {
+//    class CylinderTrafficConeVisual : public TrafficConeVisual {
 //    public:
-//        CylinderDoorVisual(const DoorVisualDefaultArgs& args);
+//        CylinderTrafficConeVisual(const TrafficConeVisualDefaultArgs& args);
 
-//        virtual ~CylinderDoorVisual();
+//        virtual ~CylinderTrafficConeVisual();
 
 //        virtual void setColor(const Ogre::ColourValue& c);
 
@@ -114,7 +111,7 @@ namespace tuw_object_rviz {
 //    };
 
 //    /// Visualization of a person as a mesh (walking human)
-//    class MeshDoorVisual : public DoorVisual {
+//    class MeshTrafficConeVisual : public TrafficConeVisual {
 
 //    private:
 //        Ogre::SceneNode *m_childSceneNode;
@@ -123,9 +120,9 @@ namespace tuw_object_rviz {
 //        std::set<Ogre::MaterialPtr> materials_;
 //        float m_walkingSpeed;
 //    public:
-//        MeshDoorVisual ( const DoorVisualDefaultArgs& args );
+//        MeshTrafficConeVisual ( const TrafficConeVisualDefaultArgs& args );
 
-//        virtual ~MeshDoorVisual();
+//        virtual ~MeshTrafficConeVisual();
 
 //        virtual void update(float deltaTime);
 
@@ -148,4 +145,4 @@ namespace tuw_object_rviz {
 
 }
 
-#endif // DOORVISUAL_H
+#endif // TrafficConeVISUAL_H

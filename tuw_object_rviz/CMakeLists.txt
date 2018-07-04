@@ -163,6 +163,8 @@ add_library(${PROJECT_NAME}
   include/ObjectDetection/DoorVisual.h
   include/ObjectDetection/mesh_node.h
   include/ObjectDetection/ObjectDetectionPersonVisual.h
+  include/ObjectDetection/ObjectDetectionTrafficConeVisual.h
+  include/ObjectDetection/TrafficConeVisual.h
   src/ObjectDetection/ObjectDetectionVisual.cpp
   src/ObjectDetection/ObjectDetectionDisplay.cpp
   src/ObjectDetection/CovarianceVisual.cpp
@@ -171,6 +173,8 @@ add_library(${PROJECT_NAME}
   src/ObjectDetection/ObjectDetectionPersonVisual.cpp
   src/ObjectDetection/ObjectDetectionDoorVisual.cpp
   src/ObjectDetection/DoorVisual.cpp
+  src/ObjectDetection/ObjectDetectionTrafficConeVisual.cpp
+  src/ObjectDetection/TrafficConeVisual.cpp
 )
 
 ## Add cmake target dependencies of the library

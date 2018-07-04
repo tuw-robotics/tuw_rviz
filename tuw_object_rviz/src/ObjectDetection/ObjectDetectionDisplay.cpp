@@ -45,6 +45,7 @@
 #include <ObjectDetection/ObjectDetectionVisual.h>
 #include <ObjectDetection/ObjectDetectionPersonVisual.h>
 #include <ObjectDetection/ObjectDetectionDoorVisual.h>
+#include <ObjectDetection/ObjectDetectionTrafficConeVisual.h>
 
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
@@ -89,8 +90,8 @@ void ObjectDetectionDisplay::onInitialize()
 
   color_property_ =
       new rviz::ColorProperty("Color", Qt::black, "Color of detected object", this, SLOT(stylesChanged()));
-      
-  style_property_ = new rviz::EnumProperty( "Person Style", "Cylinders", "Rendering mode to use, in order of computational complexity.", this, SLOT(stylesChanged()), this );
+
+  style_property_ = new rviz::EnumProperty( "Style", "Cylinders", "Rendering mode to use, in order of computational complexity.", this, SLOT(stylesChanged()), this );
   style_property_->addOption( "Simple", STYLE_SIMPLE );
   style_property_->addOption( "Cylinders", STYLE_CYLINDER );
   style_property_->addOption( "Person meshes", STYLE_PERSON_MESHES );
@@ -145,6 +146,10 @@ void ObjectDetectionDisplay::processMessage(const tuw_object_msgs::ObjectDetecti
     else if(detected_object_it->object.shape == tuw_object_msgs::Object::SHAPE_DOOR)
     {
       detected_object_visual = boost::shared_ptr<ObjectDetectionVisual>(new ObjectDetectionDoorVisual(context_->getSceneManager(), scene_node_));
+    }
+    else if(detected_object_it->object.shape == tuw_object_msgs::Object::SHAPE_TRAFFIC_CONE)
+    {
+      detected_object_visual = boost::shared_ptr<ObjectDetectionTrafficConeVisual>(new ObjectDetectionTrafficConeVisual(context_->getSceneManager(), scene_node_));
     }
     else
     {

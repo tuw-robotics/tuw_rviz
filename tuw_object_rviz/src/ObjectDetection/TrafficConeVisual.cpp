@@ -39,7 +39,7 @@
 #include <OgreTechnique.h>
 #include <OgreAnimation.h>
 
-#include "ObjectDetection/DoorVisual.h"
+#include "ObjectDetection/TrafficConeVisual.h"
 
 
 namespace fs = boost::filesystem;
@@ -49,7 +49,7 @@ namespace tuw_object_rviz {
 /*
  * Generic Person Visual
  */
-DoorVisual::DoorVisual(const DoorVisualDefaultArgs& args) :
+TrafficConeVisual::TrafficConeVisual(const TrafficConeVisualDefaultArgs& args) :
         m_sceneManager(args.sceneManager)
 {
     m_parentSceneNode = args.parentNode;
@@ -59,54 +59,54 @@ DoorVisual::DoorVisual(const DoorVisualDefaultArgs& args) :
     m_sceneNode->setScale(scale);
 }
 
-DoorVisual::~DoorVisual() {
+TrafficConeVisual::~TrafficConeVisual() {
     m_sceneManager->destroySceneNode(m_sceneNode->getName());
 };
 
-void DoorVisual::setPosition(const Ogre::Vector3& position) {
+void TrafficConeVisual::setPosition(const Ogre::Vector3& position) {
     m_sceneNode->setPosition(position);
 }
 
-const Ogre::Vector3& DoorVisual::getPosition() const {
+const Ogre::Vector3& TrafficConeVisual::getPosition() const {
     return m_sceneNode->getPosition();
 }
 
-void DoorVisual::setOrientation(const Ogre::Quaternion& orientation) {
+void TrafficConeVisual::setOrientation(const Ogre::Quaternion& orientation) {
     m_sceneNode->setOrientation(orientation);
 }
 
-const Ogre::Quaternion& DoorVisual::getOrientation() const {
+const Ogre::Quaternion& TrafficConeVisual::getOrientation() const {
     return m_sceneNode->getOrientation();
 }
 
-void DoorVisual::setScalingFactor(double scalingFactor) {
+void TrafficConeVisual::setScalingFactor(double scalingFactor) {
     m_sceneNode->setScale(scalingFactor, scalingFactor, scalingFactor);
 }
 
-void DoorVisual::setVisible(bool visible) {
+void TrafficConeVisual::setVisible(bool visible) {
     m_sceneNode->setVisible(visible, true);
 }
 
-Ogre::SceneNode* DoorVisual::getParentSceneNode() {
+Ogre::SceneNode* TrafficConeVisual::getParentSceneNode() {
     return m_parentSceneNode;
 }
 
-void DoorVisual::setHeight(double height)
+void TrafficConeVisual::setHeight(double height)
 {
   m_height = height;
 }
 
-void DoorVisual::setWidth(double width)
+void TrafficConeVisual::setRadius(double radius)
 {
-  m_width = width;
+  m_radius = radius;
 }
 
-void DoorVisual::update(float deltaTime) {}
+void TrafficConeVisual::update(float deltaTime) {}
 
 /*
- * CylinderDoorVisual
+ * CylinderTrafficConeVisual
  */
-//CylinderDoorVisual::CylinderDoorVisual(const DoorVisualDefaultArgs& args) : DoorVisual(args)
+//CylinderTrafficConeVisual::CylinderTrafficConeVisual(const TrafficConeVisualDefaultArgs& args) : TrafficConeVisual(args)
 //{
 //    m_bodyShape = new rviz::Shape(rviz::Shape::Cylinder, args.sceneManager, m_sceneNode);
 //    m_headShape = new rviz::Shape(rviz::Shape::Sphere, args.sceneManager, m_sceneNode);
@@ -122,23 +122,23 @@ void DoorVisual::update(float deltaTime) {}
 //    m_headShape->setPosition(Ogre::Vector3(0, 0, totalHeight / 2 - headDiameter / 2 ));
 //}
 
-//CylinderDoorVisual::~CylinderDoorVisual() {
+//CylinderTrafficConeVisual::~CylinderTrafficConeVisual() {
 //    delete m_bodyShape;
 //    delete m_headShape;
 //}
 
-//void CylinderDoorVisual::setColor(const Ogre::ColourValue& c) {
+//void CylinderTrafficConeVisual::setColor(const Ogre::ColourValue& c) {
 //    m_bodyShape->setColor(c);
 //    m_headShape->setColor(c);
 //    m_color = c;
 //}
 
-//Ogre::ColourValue& CylinderDoorVisual::getColor()
+//Ogre::ColourValue& CylinderTrafficConeVisual::getColor()
 //{
 //  return m_color;
 //}
 
-//double CylinderDoorVisual::getHeight() {
+//double CylinderTrafficConeVisual::getHeight() {
 //    return 1.75;
 //}
 
@@ -146,74 +146,93 @@ void DoorVisual::update(float deltaTime) {}
  * Bounding Box Visual
  */
 
-BoundingBoxDoorVisual::BoundingBoxDoorVisual ( const DoorVisualDefaultArgs& args, double height, double width, double scalingFactor ) : DoorVisual(args)
+TrafficConeVisualImpl::TrafficConeVisualImpl ( const TrafficConeVisualDefaultArgs& args, double height, double radius) : TrafficConeVisual(args)
 {
-    m_width = width; m_height = height; m_scalingFactor = scalingFactor; m_lineWidth = 0.03;
-    m_wireframe = NULL;
-    m_thickness = 0.1;
-    generateWireframe();
+    m_height = height;
+    m_radius = radius;
+    m_bodyShape = new rviz::Shape(rviz::Shape::Cone, args.sceneManager, m_sceneNode);
+
+    m_bodyShape->setScale(Ogre::Vector3(radius,height,radius));
+    m_bodyShape->setPosition(Ogre::Vector3(0,0,0));
+    m_bodyShape->setColor(1.0,1.0,0.0,1.0);
 }
 
-BoundingBoxDoorVisual::~BoundingBoxDoorVisual() {
-    delete m_wireframe;
+TrafficConeVisualImpl::~TrafficConeVisualImpl() {
+    delete m_bodyShape;
 }
 
-void BoundingBoxDoorVisual::setColor(const Ogre::ColourValue& c) {
-    m_wireframe->setColor(c.r, c.g, c.b, c.a);
+void TrafficConeVisualImpl::setColor(const Ogre::ColourValue& c) {
+    m_bodyShape->setColor(c.r, c.g, c.b, c.a);
     m_color = c;
 }
 
-Ogre::ColourValue& BoundingBoxDoorVisual::getColor()
+Ogre::ColourValue& TrafficConeVisualImpl::getColor()
 {
   return m_color;
 }
 
-double BoundingBoxDoorVisual::getHeight() {
+double TrafficConeVisualImpl::getHeight() {
     return m_height;
 }
 
-void BoundingBoxDoorVisual::setLineWidth(double lineWidth) {
-    m_wireframe->setLineWidth(lineWidth);
+void TrafficConeVisualImpl::setHeight(double height)
+{
+  TrafficConeVisual::setHeight(height);
+  m_height = height;
+  m_bodyShape->setScale(Ogre::Vector3(m_radius,height,m_radius));
 }
 
-void BoundingBoxDoorVisual::generateWireframe() {
-    delete m_wireframe;
-    m_wireframe = new rviz::BillboardLine(m_sceneManager, m_sceneNode);
-
-    m_wireframe->setLineWidth(m_lineWidth);
-    m_wireframe->setMaxPointsPerLine(2);
-    m_wireframe->setNumLines(12);
-
-    double w = m_width, h = m_height;
-    Ogre::Vector3 bottomLeft(0, -w, 0), bottomRight(0, 0, 0), topLeft(0, -w, h), topRight(0, 0, h);
-    Ogre::Vector3 rear(m_thickness, 0, 0);
-
-    // Front quad
-                                m_wireframe->addPoint(bottomLeft);          m_wireframe->addPoint(bottomRight);
-    m_wireframe->newLine();     m_wireframe->addPoint(bottomRight);         m_wireframe->addPoint(topRight);
-    m_wireframe->newLine();     m_wireframe->addPoint(topRight);            m_wireframe->addPoint(topLeft);
-    m_wireframe->newLine();     m_wireframe->addPoint(topLeft);             m_wireframe->addPoint(bottomLeft);
-
-    // Rear quad
-    m_wireframe->newLine();     m_wireframe->addPoint(bottomLeft + rear);   m_wireframe->addPoint(bottomRight + rear);
-    m_wireframe->newLine();     m_wireframe->addPoint(bottomRight + rear);  m_wireframe->addPoint(topRight + rear);
-    m_wireframe->newLine();     m_wireframe->addPoint(topRight + rear);     m_wireframe->addPoint(topLeft + rear);
-    m_wireframe->newLine();     m_wireframe->addPoint(topLeft + rear);      m_wireframe->addPoint(bottomLeft + rear);
-
-    // Four connecting lines between front and rear
-    m_wireframe->newLine();     m_wireframe->addPoint(bottomLeft);          m_wireframe->addPoint(bottomLeft + rear);
-    m_wireframe->newLine();     m_wireframe->addPoint(bottomRight);         m_wireframe->addPoint(bottomRight + rear);
-    m_wireframe->newLine();     m_wireframe->addPoint(topRight);            m_wireframe->addPoint(topRight + rear);
-    m_wireframe->newLine();     m_wireframe->addPoint(topLeft);             m_wireframe->addPoint(topLeft + rear);
-
-    m_wireframe->setPosition(Ogre::Vector3(0, 0, -h/2.0));
+void TrafficConeVisualImpl::setRadius(double radius)
+{
+  TrafficConeVisual::setRadius(radius);
+  m_radius = radius;
+  m_bodyShape->setScale(Ogre::Vector3(radius,m_height,radius));
 }
+
+void TrafficConeVisualImpl::update(float deltaTime)
+{
+  //TrafficConeVisual::update(deltaTime);
+  //m_bodyShape->setScale(Ogre::Vector3());
+}
+
+//void TrafficConeVisualImpl::generateWireframe() {
+//    delete m_wireframe;
+//    m_wireframe = new rviz::BillboardLine(m_sceneManager, m_sceneNode);
+
+//    m_wireframe->setLineWidth(m_lineWidth);
+//    m_wireframe->setMaxPointsPerLine(2);
+//    m_wireframe->setNumLines(12);
+
+//    double w = m_width, h = m_height;
+//    Ogre::Vector3 bottomLeft(0, -w, 0), bottomRight(0, 0, 0), topLeft(0, -w, h), topRight(0, 0, h);
+//    Ogre::Vector3 rear(m_thickness, 0, 0);
+
+//    // Front quad
+//                                m_wireframe->addPoint(bottomLeft);          m_wireframe->addPoint(bottomRight);
+//    m_wireframe->newLine();     m_wireframe->addPoint(bottomRight);         m_wireframe->addPoint(topRight);
+//    m_wireframe->newLine();     m_wireframe->addPoint(topRight);            m_wireframe->addPoint(topLeft);
+//    m_wireframe->newLine();     m_wireframe->addPoint(topLeft);             m_wireframe->addPoint(bottomLeft);
+
+//    // Rear quad
+//    m_wireframe->newLine();     m_wireframe->addPoint(bottomLeft + rear);   m_wireframe->addPoint(bottomRight + rear);
+//    m_wireframe->newLine();     m_wireframe->addPoint(bottomRight + rear);  m_wireframe->addPoint(topRight + rear);
+//    m_wireframe->newLine();     m_wireframe->addPoint(topRight + rear);     m_wireframe->addPoint(topLeft + rear);
+//    m_wireframe->newLine();     m_wireframe->addPoint(topLeft + rear);      m_wireframe->addPoint(bottomLeft + rear);
+
+//    // Four connecting lines between front and rear
+//    m_wireframe->newLine();     m_wireframe->addPoint(bottomLeft);          m_wireframe->addPoint(bottomLeft + rear);
+//    m_wireframe->newLine();     m_wireframe->addPoint(bottomRight);         m_wireframe->addPoint(bottomRight + rear);
+//    m_wireframe->newLine();     m_wireframe->addPoint(topRight);            m_wireframe->addPoint(topRight + rear);
+//    m_wireframe->newLine();     m_wireframe->addPoint(topLeft);             m_wireframe->addPoint(topLeft + rear);
+
+//    m_wireframe->setPosition(Ogre::Vector3(0, 0, -h/2.0));
+//}
 
 /*
  * Mesh Person Visual
  */
 
-//MeshDoorVisual::MeshDoorVisual(const DoorVisualDefaultArgs& args) : DoorVisual(args), entity_(NULL), m_animationState(NULL), m_walkingSpeed(1.0)
+//MeshTrafficConeVisual::MeshTrafficConeVisual(const TrafficConeVisualDefaultArgs& args) : TrafficConeVisual(args), entity_(NULL), m_animationState(NULL), m_walkingSpeed(1.0)
 //{
 //    m_childSceneNode = m_sceneNode->createChildSceneNode();
 //    m_childSceneNode->setVisible(false);
@@ -267,7 +286,7 @@ void BoundingBoxDoorVisual::generateWireframe() {
 //    m_childSceneNode->setVisible(true);
 //}
 
-//MeshDoorVisual::~MeshDoorVisual() {
+//MeshTrafficConeVisual::~MeshTrafficConeVisual() {
 //    m_sceneManager->destroyEntity( entity_ );
 
 //    // destroy all the materials we've created
@@ -286,7 +305,7 @@ void BoundingBoxDoorVisual::generateWireframe() {
 //    m_sceneManager->destroySceneNode(m_childSceneNode->getName());
 //}
 
-//void MeshDoorVisual::setColor(const Ogre::ColourValue& c) {
+//void MeshTrafficConeVisual::setColor(const Ogre::ColourValue& c) {
 
 //    m_color = c;
 
@@ -317,12 +336,12 @@ void BoundingBoxDoorVisual::generateWireframe() {
 //    }
 //}
 
-//Ogre::ColourValue& MeshDoorVisual::getColor()
+//Ogre::ColourValue& MeshTrafficConeVisual::getColor()
 //{
 //  return m_color;
 //}
 
-//void MeshDoorVisual::setAnimationState(const std::string& nameOfAnimationState) {
+//void MeshTrafficConeVisual::setAnimationState(const std::string& nameOfAnimationState) {
 //    Ogre::AnimationStateSet *animationStates = entity_->getAllAnimationStates();
 //    if(animationStates != NULL)
 //    {
@@ -344,12 +363,12 @@ void BoundingBoxDoorVisual::generateWireframe() {
 //    }
 //}
 
-//void MeshDoorVisual::setWalkingSpeed(float walkingSpeed) {
+//void MeshTrafficConeVisual::setWalkingSpeed(float walkingSpeed) {
 //    m_walkingSpeed = walkingSpeed;
 //}
 
 
-//void MeshDoorVisual::update(float deltaTime) {
+//void MeshTrafficConeVisual::update(float deltaTime) {
 //    if(m_animationState) {
 //        m_animationState->addTime(0.7 * deltaTime * m_walkingSpeed);
 //    }
