@@ -25,7 +25,7 @@ namespace tuw_object_rviz {
 
     class HasBaseframe {
       public:
-        virtual void generateBaseframe(double theta) = 0;
+        virtual void generateBaseframe(double theta, bool clockwise) = 0;
     };
 
     // Default arguments that need to be supplied to all types of DoorVisual
@@ -92,7 +92,7 @@ namespace tuw_object_rviz {
 
         virtual void generateWireframe();
 
-        virtual void generateBaseframe(double theta);
+        virtual void generateBaseframe(double theta, bool clockwise);
         /*
         virtual void setScalingFactor(double scalingFactor);
         */

@@ -213,7 +213,7 @@ void BoundingBoxDoorVisual::generateWireframe() {
     m_wireframe->setPosition(Ogre::Vector3(0, 0, 0));
 }
 
-void BoundingBoxDoorVisual::generateBaseframe(double theta) {
+void BoundingBoxDoorVisual::generateBaseframe(double theta, bool clockwise) {
     delete m_baseframe;
 
     m_baseframe = new rviz::BillboardLine(m_sceneManager, m_sceneNode);
@@ -221,16 +221,26 @@ void BoundingBoxDoorVisual::generateBaseframe(double theta) {
     m_baseframe->setMaxPointsPerLine(2);
     double r = m_width;
     double factor = 180.0;
-    int factor_i = (int) factor;
+    int factor_i = 20;
     double segment_length_rad = M_PI * 2.0 / factor;
-    Ogre::Vector3 bottomLeft(0,-r,0);
+    Ogre::Vector3 offset = clockwise ? Ogre::Vector3(0,-r,0) : Ogre::Vector3(0,0,0);
     m_baseframe->setNumLines(factor_i+2);
     for (int i=0; i < factor_i; i++) {
-      Ogre::Vector3 start_v(r*cos(i*segment_length_rad),r*sin(i*segment_length_rad), 0);
-      Ogre::Vector3 end_v(r*cos((i+1)*segment_length_rad), r*sin((i+1)*segment_length_rad), 0);
+      Ogre::Vector3 start_v;
+      Ogre::Vector3 end_v;
+      if (!clockwise)
+      {
+        start_v = Ogre::Vector3(r*cos(i*segment_length_rad),r*sin(i*segment_length_rad), 0);
+        end_v = Ogre::Vector3(r*cos((i+1)*segment_length_rad), r*sin((i+1)*segment_length_rad), 0);
+      }
+      else
+      {
+        start_v = Ogre::Vector3(r*cos((factor_i-i)*segment_length_rad),r*sin((factor_i-i)*segment_length_rad), 0);
+        end_v = Ogre::Vector3(r*cos((factor_i - (i+1))*segment_length_rad), r*sin((factor_i - (i+1))*segment_length_rad), 0);
+      }
       //std::cout << "(" << start_v.x << ", " << start_v.y << ", " << start_v.z << ") ->" << " ( " << end_v.x << ", " << end_v.y << ", " << end_v.z << ")" << std::endl;
-      m_baseframe->addPoint(start_v);
-      m_baseframe->addPoint(end_v);
+      m_baseframe->addPoint(offset + start_v);
+      m_baseframe->addPoint(offset + end_v);
       m_baseframe->newLine();
     }
 }

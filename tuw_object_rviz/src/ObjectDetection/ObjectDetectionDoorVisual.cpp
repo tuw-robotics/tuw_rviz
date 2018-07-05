@@ -64,6 +64,7 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   double width = msg->object.shape_variables[0];
   double height = msg->object.shape_variables[1];
   double oangle = msg->object.shape_variables[2];
+  bool clock_wise = msg->object.shape_variables[3] == 0 ? true : false;
   door_visual_->setWidth(width);
   door_visual_->setHeight(height);
   boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::HasWireframe>(door_visual_);
@@ -74,7 +75,7 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   boost::shared_ptr<tuw_object_rviz::HasBaseframe> base_f_bb =  boost::dynamic_pointer_cast<tuw_object_rviz::HasBaseframe>(door_visual_);
   if (base_f_bb)
   {
-    base_f_bb->generateBaseframe(oangle);
+    base_f_bb->generateBaseframe(oangle, clock_wise);
   }
   door_visual_->setPosition(position + Ogre::Vector3(0, 0, 0));
   door_visual_->setOrientation(orientation);
