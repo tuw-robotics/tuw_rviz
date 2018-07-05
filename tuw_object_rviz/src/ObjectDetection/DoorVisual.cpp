@@ -150,12 +150,16 @@ BoundingBoxDoorVisual::BoundingBoxDoorVisual ( const DoorVisualDefaultArgs& args
 {
     m_width = width; m_height = height; m_scalingFactor = scalingFactor; m_lineWidth = 0.03;
     m_wireframe = NULL;
+    m_baseframe = NULL;
     m_thickness = 0.1;
     generateWireframe();
 }
 
 BoundingBoxDoorVisual::~BoundingBoxDoorVisual() {
     delete m_wireframe;
+    delete m_baseframe;
+    m_wireframe = NULL;
+    m_baseframe = NULL;
 }
 
 void BoundingBoxDoorVisual::setColor(const Ogre::ColourValue& c) {
@@ -206,7 +210,29 @@ void BoundingBoxDoorVisual::generateWireframe() {
     m_wireframe->newLine();     m_wireframe->addPoint(topRight);            m_wireframe->addPoint(topRight + rear);
     m_wireframe->newLine();     m_wireframe->addPoint(topLeft);             m_wireframe->addPoint(topLeft + rear);
 
-    m_wireframe->setPosition(Ogre::Vector3(0, 0, -h/2.0));
+    m_wireframe->setPosition(Ogre::Vector3(0, 0, 0));
+}
+
+void BoundingBoxDoorVisual::generateBaseframe(double theta) {
+    delete m_baseframe;
+
+    m_baseframe = new rviz::BillboardLine(m_sceneManager, m_sceneNode);
+    m_baseframe->setLineWidth(m_lineWidth);
+    m_baseframe->setMaxPointsPerLine(2);
+    double r = m_width;
+    double factor = 180.0;
+    int factor_i = (int) factor;
+    double segment_length_rad = M_PI * 2.0 / factor;
+    Ogre::Vector3 bottomLeft(0,-r,0);
+    m_baseframe->setNumLines(factor_i+2);
+    for (int i=0; i < factor_i; i++) {
+      Ogre::Vector3 start_v(r*cos(i*segment_length_rad),r*sin(i*segment_length_rad), 0);
+      Ogre::Vector3 end_v(r*cos((i+1)*segment_length_rad), r*sin((i+1)*segment_length_rad), 0);
+      //std::cout << "(" << start_v.x << ", " << start_v.y << ", " << start_v.z << ") ->" << " ( " << end_v.x << ", " << end_v.y << ", " << end_v.z << ")" << std::endl;
+      m_baseframe->addPoint(start_v);
+      m_baseframe->addPoint(end_v);
+      m_baseframe->newLine();
+    }
 }
 
 /*

@@ -23,6 +23,11 @@ namespace tuw_object_rviz {
         virtual void generateWireframe() = 0;
     };
 
+    class HasBaseframe {
+      public:
+        virtual void generateBaseframe(double theta) = 0;
+    };
+
     // Default arguments that need to be supplied to all types of DoorVisual
     struct DoorVisualDefaultArgs {
         DoorVisualDefaultArgs(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode) : sceneManager(sceneManager), parentNode(parentNode) {}
@@ -71,7 +76,7 @@ namespace tuw_object_rviz {
     };
 
     /// Visualization of a person as a wireframe bounding box
-    class BoundingBoxDoorVisual : public DoorVisual, public tuw_object_rviz::HasLineWidth, public tuw_object_rviz::HasWireframe {
+    class BoundingBoxDoorVisual : public DoorVisual, public tuw_object_rviz::HasLineWidth, public tuw_object_rviz::HasWireframe, public tuw_object_rviz::HasBaseframe {
     public:
         BoundingBoxDoorVisual ( const DoorVisualDefaultArgs& args, double height = 1.75, double width = 0.6, double scalingFactor = 1.0 );
 
@@ -86,12 +91,15 @@ namespace tuw_object_rviz {
         virtual void setLineWidth(double lineWidth);
 
         virtual void generateWireframe();
+
+        virtual void generateBaseframe(double theta);
         /*
         virtual void setScalingFactor(double scalingFactor);
         */
 
     private:
         rviz::BillboardLine *m_wireframe;
+        rviz::BillboardLine *m_baseframe;
         double m_scalingFactor, m_lineWidth;
         double m_thickness;
     };

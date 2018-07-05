@@ -71,7 +71,12 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   {
     dv_bb->generateWireframe();
   }
-  door_visual_->setPosition(position + Ogre::Vector3(0, 0, door_visual_->getHeight() / 2));
+  boost::shared_ptr<tuw_object_rviz::HasBaseframe> base_f_bb =  boost::dynamic_pointer_cast<tuw_object_rviz::HasBaseframe>(door_visual_);
+  if (base_f_bb)
+  {
+    base_f_bb->generateBaseframe(oangle);
+  }
+  door_visual_->setPosition(position + Ogre::Vector3(0, 0, 0));
   door_visual_->setOrientation(orientation);
 }
 
