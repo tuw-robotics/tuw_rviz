@@ -7,6 +7,16 @@
 namespace tuw_object_rviz
 {
 
+//TODO: redundancy
+enum DoorObjectShapeVariables {
+  width = 0,
+  height = 1,
+  angle_w = 2,
+  angle_d = 3,
+  leaves = 4,
+  clockwise = 5
+};
+
 class ObjectDetectionDoorVisual : public ObjectDetectionVisual
 {
 public:

@@ -61,12 +61,20 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
 
   Ogre::Quaternion orientation = Ogre::Quaternion(msg->object.pose.orientation.w, msg->object.pose.orientation.x,
                                                   msg->object.pose.orientation.y, msg->object.pose.orientation.z);
-  double width = msg->object.shape_variables[0];
-  double height = msg->object.shape_variables[1];
-  double oangle = msg->object.shape_variables[2];
-  bool clock_wise = msg->object.shape_variables[3] == 0 ? true : false;
+  double width = msg->object.shape_variables[DoorObjectShapeVariables::width];
+  double height = msg->object.shape_variables[DoorObjectShapeVariables::height];
+  double d_angle = msg->object.shape_variables[DoorObjectShapeVariables::angle_d];
+  bool clock_wise = ((int) msg->object.shape_variables[DoorObjectShapeVariables::clockwise] == 0) ? true : false;
   door_visual_->setWidth(width);
   door_visual_->setHeight(height);
+  door_visual_->setOrdering(clock_wise);
+  door_visual_->setOpeningAngle(d_angle);
+  Ogre::Matrix3 rotation_local = door_visual_->getRotationMat();
+  Ogre::Quaternion rotation_local_q;
+  rotation_local_q.FromRotationMatrix(rotation_local);
+  orientation = orientation * rotation_local_q;
+  door_visual_->setPosition(position + Ogre::Vector3(0, 0, 0));
+  door_visual_->setOrientation(orientation);
   boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::HasWireframe>(door_visual_);
   if (dv_bb)
   {
@@ -75,10 +83,8 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   boost::shared_ptr<tuw_object_rviz::HasBaseframe> base_f_bb =  boost::dynamic_pointer_cast<tuw_object_rviz::HasBaseframe>(door_visual_);
   if (base_f_bb)
   {
-    base_f_bb->generateBaseframe(oangle, clock_wise);
+    base_f_bb->generateBaseframe();
   }
-  door_visual_->setPosition(position + Ogre::Vector3(0, 0, 0));
-  door_visual_->setOrientation(orientation);
 }
 
 // Color is passed through to the pose Shape object.

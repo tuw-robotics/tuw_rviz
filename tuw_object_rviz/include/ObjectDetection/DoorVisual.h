@@ -25,7 +25,7 @@ namespace tuw_object_rviz {
 
     class HasBaseframe {
       public:
-        virtual void generateBaseframe(double theta, bool clockwise) = 0;
+        virtual void generateBaseframe() = 0;
     };
 
     // Default arguments that need to be supplied to all types of DoorVisual
@@ -60,7 +60,13 @@ namespace tuw_object_rviz {
 
         virtual void setWidth(double width);
 
+        virtual void setOpeningAngle(double oangle);
+
+        virtual void setOrdering(bool clockwise);
+
         virtual void update(float deltaTime);
+
+        virtual Ogre::Matrix3 getRotationMat();
 
         virtual void setColor(const Ogre::ColourValue& c) = 0;
 
@@ -72,6 +78,9 @@ namespace tuw_object_rviz {
         Ogre::SceneManager* m_sceneManager;
         Ogre::SceneNode *m_sceneNode, *m_parentSceneNode;
         Ogre::ColourValue m_color;
+        Ogre::Matrix3 R_do;
+        bool m_clockwise;
+        bool m_oangle;
         double m_width, m_height;
     };
 
@@ -92,7 +101,7 @@ namespace tuw_object_rviz {
 
         virtual void generateWireframe();
 
-        virtual void generateBaseframe(double theta, bool clockwise);
+        virtual void generateBaseframe();
         /*
         virtual void setScalingFactor(double scalingFactor);
         */
