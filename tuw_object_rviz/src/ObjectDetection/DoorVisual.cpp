@@ -60,6 +60,9 @@ DoorVisual::DoorVisual(const DoorVisualDefaultArgs& args) :
     R_do = Ogre::Matrix3(1,0,0,
                          0,1,0,
                          0,0,1);
+
+    m_id_text.reset(new TextVisual(m_sceneManager, m_sceneNode, Ogre::Vector3(0, 0, 0.15)));
+    m_id_text->setCharacterHeight(0.5);
 }
 
 DoorVisual::~DoorVisual() {
@@ -104,11 +107,19 @@ void DoorVisual::setWidth(double width)
   m_width = width;
 }
 
-void DoorVisual::setOpeningAngle(double oangle)
+void DoorVisual::setOpeningAngle(double oangle, bool clockwise)
 {
   m_oangle = oangle;
-  double c = cos(oangle);
-  double s = sin(oangle);
+  m_clockwise = clockwise;
+  double c;
+  double s;
+  if (clockwise) {
+    c = cos(-oangle);
+    s = sin(-oangle);
+  } else {
+    c = cos(oangle);
+    s = sin(oangle);
+  }
   R_do = Ogre::Matrix3(c,-s,0,
                        s,c,0,
                        0,0,1);
@@ -117,11 +128,6 @@ void DoorVisual::setOpeningAngle(double oangle)
 Ogre::Matrix3 DoorVisual::getRotationMat()
 {
   return R_do;
-}
-
-void DoorVisual::setOrdering(bool clockwise)
-{
-  m_clockwise = clockwise;
 }
 
 void DoorVisual::update(float deltaTime) {}
@@ -246,32 +252,34 @@ void BoundingBoxDoorVisual::generateBaseframe() {
     m_baseframe->setLineWidth(m_lineWidth);
     m_baseframe->setMaxPointsPerLine(2);
     double r = m_width;
-    double factor = 180.0;
-    int factor_i = 20;
-    double segment_length_rad = M_PI * 2.0 / factor;
-    Ogre::Vector3 offset = m_clockwise ? Ogre::Vector3(0,-r,0) : Ogre::Vector3(0,0,0);
-    m_baseframe->setNumLines(factor_i+2);
+    int factor_i = 15;
+    double factor = m_oangle / ((double) factor_i);
+    double angle_dec = 0;
+    Ogre::Vector3 offset = Ogre::Vector3(0,-r,0);
+    m_baseframe->setPosition(Ogre::Vector3(0,0,0));
+    m_baseframe->setNumLines(factor_i);
+    int sign = m_clockwise == true ? 1 : -1;
     for (int i=0; i < factor_i; i++) {
-      Ogre::Vector3 start_v;
-      Ogre::Vector3 end_v;
-      if (!m_clockwise)
-      {
-        start_v = Ogre::Vector3(r*cos(i*segment_length_rad),r*sin(i*segment_length_rad), 0);
-        end_v = Ogre::Vector3(r*cos((i+1)*segment_length_rad), r*sin((i+1)*segment_length_rad), 0);
-      }
-      else
-      {
-        start_v = Ogre::Vector3(r*cos((factor_i-i)*segment_length_rad),r*sin((factor_i-i)*segment_length_rad), 0);
-        end_v = Ogre::Vector3(r*cos((factor_i - (i+1))*segment_length_rad), r*sin((factor_i - (i+1))*segment_length_rad), 0);
-      }
+      Ogre::Vector3 start_v = offset;
+      Ogre::Vector3 end_v = offset;
+      double s_theta = sin(sign * angle_dec);
+      double c_theta = cos(sign * angle_dec);
+      Ogre::Matrix3 R_start = Ogre::Matrix3(c_theta,-s_theta,0,
+                    s_theta,c_theta,0,
+                    0,  0,  1);
+      angle_dec += factor;
+      s_theta = sin(sign * angle_dec);
+      c_theta = cos(sign * angle_dec);
+      Ogre::Matrix3 R_end = Ogre::Matrix3(c_theta,-s_theta,0,
+                    s_theta,c_theta,0,
+                    0,  0,  1);
+      start_v = R_start * start_v;
+      end_v = R_end * end_v;
       //std::cout << "(" << start_v.x << ", " << start_v.y << ", " << start_v.z << ") ->" << " ( " << end_v.x << ", " << end_v.y << ", " << end_v.z << ")" << std::endl;
-      m_baseframe->addPoint(offset + start_v);
-      m_baseframe->addPoint(offset + end_v);
+      m_baseframe->addPoint(start_v);
+      m_baseframe->addPoint(end_v);
       m_baseframe->newLine();
     }
-//    Ogre::Quaternion orientation;
-//    orientation.FromRotationMatrix(R_do);
-//    m_baseframe->setOrientation(orientation);
 }
 
 /*

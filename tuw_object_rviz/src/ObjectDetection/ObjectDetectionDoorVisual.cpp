@@ -67,14 +67,14 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   bool clock_wise = ((int) msg->object.shape_variables[DoorObjectShapeVariables::clockwise] == 0) ? true : false;
   door_visual_->setWidth(width);
   door_visual_->setHeight(height);
-  door_visual_->setOrdering(clock_wise);
-  door_visual_->setOpeningAngle(d_angle);
+  door_visual_->setOpeningAngle(d_angle, clock_wise);
   Ogre::Matrix3 rotation_local = door_visual_->getRotationMat();
   Ogre::Quaternion rotation_local_q;
   rotation_local_q.FromRotationMatrix(rotation_local);
   orientation = orientation * rotation_local_q;
   door_visual_->setPosition(position + Ogre::Vector3(0, 0, 0));
   door_visual_->setOrientation(orientation);
+  door_visual_->getText()->setCaption(std::to_string(msg->object.ids[0]));
   boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::HasWireframe>(door_visual_);
   if (dv_bb)
   {
