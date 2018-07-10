@@ -248,15 +248,14 @@ void BoundingBoxDoorVisual::generateBaseframe() {
     m_baseframe = new rviz::BillboardLine(m_sceneManager, m_sceneNode);
     m_baseframe->setLineWidth(m_lineWidth);
     m_baseframe->setMaxPointsPerLine(2);
-    double r = m_width;
-    int factor_i = 15;
-    double factor = m_oangle / ((double) factor_i);
-    double angle_dec = 0;
-    Ogre::Vector3 offset = Ogre::Vector3(0,-r,0);
     m_baseframe->setPosition(Ogre::Vector3(0,0,0));
-    m_baseframe->setNumLines(factor_i);
+    Ogre::Vector3 offset = Ogre::Vector3(0,-m_width,0);
+    double factor = 5.0 * M_PI/180.0;
+    double lines_per_angle = ceil(m_oangle / factor);
+    double angle_dec = 0;
+    m_baseframe->setNumLines(static_cast<int>(lines_per_angle));
     int sign = m_clockwise == true ? 1 : -1;
-    for (int i=0; i < factor_i; i++) {
+    for (int i=0; i < lines_per_angle; i++) {
       Ogre::Vector3 start_v = offset;
       Ogre::Vector3 end_v = offset;
       double s_theta = sin(sign * angle_dec);
@@ -272,7 +271,6 @@ void BoundingBoxDoorVisual::generateBaseframe() {
                     0,  0,  1);
       start_v = R_start * start_v;
       end_v = R_end * end_v;
-      //std::cout << "(" << start_v.x << ", " << start_v.y << ", " << start_v.z << ") ->" << " ( " << end_v.x << ", " << end_v.y << ", " << end_v.z << ")" << std::endl;
       m_baseframe->addPoint(start_v);
       m_baseframe->addPoint(end_v);
       m_baseframe->newLine();

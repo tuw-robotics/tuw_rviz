@@ -68,11 +68,10 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   door_visual_->setWidth(width);
   door_visual_->setHeight(height);
   door_visual_->setOpeningAngle(d_angle, clock_wise);
-  Ogre::Matrix3 rotation_local = door_visual_->getRotationMat();
   Ogre::Quaternion rotation_local_q;
-  rotation_local_q.FromRotationMatrix(rotation_local);
+  rotation_local_q.FromRotationMatrix(door_visual_->getRotationMat());
   orientation = orientation * rotation_local_q;
-  door_visual_->setPosition(position + Ogre::Vector3(0, 0, 0));
+  door_visual_->setPosition(position);
   door_visual_->setOrientation(orientation);
   boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::HasWireframe>(door_visual_);
   if (dv_bb)
