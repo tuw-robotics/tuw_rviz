@@ -74,7 +74,6 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   orientation = orientation * rotation_local_q;
   door_visual_->setPosition(position + Ogre::Vector3(0, 0, 0));
   door_visual_->setOrientation(orientation);
-  door_visual_->getText()->setCaption(std::to_string(msg->object.ids[0]));
   boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::HasWireframe>(door_visual_);
   if (dv_bb)
   {

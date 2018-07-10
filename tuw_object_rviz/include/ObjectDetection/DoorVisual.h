@@ -73,14 +73,11 @@ namespace tuw_object_rviz {
 
         virtual double getHeight() = 0;
 
-        virtual boost::shared_ptr<TextVisual> getText() { return m_id_text; }
-
     protected:
         Ogre::SceneManager* m_sceneManager;
         Ogre::SceneNode *m_sceneNode, *m_parentSceneNode;
         Ogre::ColourValue m_color;
         Ogre::Matrix3 R_do;
-        boost::shared_ptr<TextVisual> m_id_text;
         bool m_clockwise;
         double m_oangle;
         double m_width, m_height;

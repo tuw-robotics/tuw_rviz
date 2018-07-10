@@ -60,9 +60,6 @@ DoorVisual::DoorVisual(const DoorVisualDefaultArgs& args) :
     R_do = Ogre::Matrix3(1,0,0,
                          0,1,0,
                          0,0,1);
-
-    m_id_text.reset(new TextVisual(m_sceneManager, m_sceneNode, Ogre::Vector3(0, 0, 0.15)));
-    m_id_text->setCharacterHeight(0.5);
 }
 
 DoorVisual::~DoorVisual() {
