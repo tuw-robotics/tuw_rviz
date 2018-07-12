@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(tuw_nav_rviz)
+project(tuw_control_rviz)
 
 add_compile_options(-std=c++14) ## for c++ 2011
 ## Find catkin macros and libraries
@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   tuw_geometry_msgs
   tuw_nav_msgs
   rviz
+  tuw_control
 )
 
 ## System dependencies are found with CMake's conventions
@@ -103,7 +104,7 @@ find_package(Eigen3 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES tuw_nav_rviz
+#  LIBRARIES tuw_control_rviz
 #  CATKIN_DEPENDS rviz tuw_nav_msgs
 #  DEPENDS system_lib
 )
@@ -146,19 +147,10 @@ add_definitions(-DQT_NO_KEYWORDS)
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-
-  include/RouteSegments/RouteSegmentsVisual.h
-  include/RouteSegments/RouteSegmentsDisplay.h
-  src/RouteSegments/RouteSegmentsVisual.cpp
-  src/RouteSegments/RouteSegmentsDisplay.cpp
-  
-  include/Path/PathVisual.h
-  include/Path/PathDisplay.h
-  src/Path/PathVisual.cpp
-  src/Path/PathDisplay.cpp
-  
-  include/PathVec/PathVecDisplay.h
-  src/PathVec/PathVecDisplay.cpp
+  include/Spline/SplineVisual.h
+  include/Spline/SplineDisplay.h
+  src/Spline/SplineVisual.cpp
+  src/Spline/SplineDisplay.cpp
 )
 
 ## Specify libraries to link a library or executable target against
@@ -212,7 +204,7 @@ install(DIRECTORY
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_tuw_nav_rviz.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_tuw_control_rviz.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
