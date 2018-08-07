@@ -56,6 +56,7 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   ObjectDetectionVisual::setMessage(msg);
 
   Ogre::Vector3 position = Ogre::Vector3(msg->object.pose.position.x, msg->object.pose.position.y, msg->object.pose.position.z);
+
   position = transform_ * position;
   position.z = 0;  // fix on ground z=0
 
@@ -70,7 +71,7 @@ void ObjectDetectionDoorVisual::setMessage(const tuw_object_msgs::ObjectWithCova
   door_visual_->setOpeningAngle(d_angle, clock_wise);
   Ogre::Quaternion rotation_local_q;
   rotation_local_q.FromRotationMatrix(door_visual_->getRotationMat());
-  orientation = orientation * rotation_local_q;
+  orientation = transform_.extractQuaternion() * orientation * rotation_local_q;
   door_visual_->setPosition(position);
   door_visual_->setOrientation(orientation);
   boost::shared_ptr<tuw_object_rviz::HasWireframe> dv_bb = boost::dynamic_pointer_cast<tuw_object_rviz::HasWireframe>(door_visual_);

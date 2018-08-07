@@ -166,14 +166,14 @@ void ObjectDetectionDisplay::processMessage(const tuw_object_msgs::ObjectDetecti
     Ogre::Quaternion orientation;
     Ogre::Vector3 position;
 
-    // ROS_INFO("msg frame id = %s", msg->header.frame_id.c_str());
+//    ROS_INFO("ObjectDetectionDisplay::processMessage(): msg frame id = %s", msg->header.frame_id.c_str());
+//    ROS_INFO("Transform from %s to %s", msg->header.frame_id.c_str(), qPrintable(fixed_frame_));
     if (!context_->getFrameManager()->getTransform(msg->header, position, orientation))
     {
       ROS_DEBUG("Error transforming from frame '%s' to frame '%s'", msg->header.frame_id.c_str(),
                 qPrintable(fixed_frame_));
       return;
     }
-
     // set frame position to origin of parent, then explicitly transform points in msg
     // the advantage of this is that one can treat every detected object the same
     // regardless of orientation of the coordinate system
