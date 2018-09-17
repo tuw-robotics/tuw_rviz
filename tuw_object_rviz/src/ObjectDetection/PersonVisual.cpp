@@ -250,7 +250,6 @@ MeshPersonVisual::MeshPersonVisual(const PersonVisualDefaultArgs& args) : Person
                                   *oldListener = Ogre::ResourceGroupManager::getSingleton().getLoadingListener();
 
     Ogre::ResourceGroupManager::getSingleton().setLoadingListener(newListener);
-    bool loadFailed = rviz::loadMeshFromResource(meshResource).isNull();
     Ogre::ResourceGroupManager::getSingleton().setLoadingListener(oldListener);
 
     delete newListener;

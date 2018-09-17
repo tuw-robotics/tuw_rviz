@@ -109,6 +109,8 @@ void ObjectDetectionDoorVisual::setStyle(Styles style)
     case STYLE_BOUNDING_BOXES:
       door_visual_.reset(new BoundingBoxDoorVisual(default_args));
       break;
+    default:
+        break;
   }
 
   door_visual_->setOrientation(orientation);

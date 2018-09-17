@@ -119,6 +119,8 @@ void ObjectDetectionTrafficConeVisual::setStyle(Styles style)
     case STYLE_BOUNDING_BOXES:
       traffic_cone_visual_.reset(new TrafficConeVisualImpl(default_args));
       break;
+    default:
+      break;
   }
 
   traffic_cone_visual_->setOrientation(orientation);
