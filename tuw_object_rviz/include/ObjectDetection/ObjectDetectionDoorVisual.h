@@ -7,7 +7,7 @@
 namespace tuw_object_rviz
 {
 
-//TODO: redundancy
+//TODO: redundancy (also defined in tuw_door_detection/tuw_object_publisher)
 enum DoorObjectShapeVariables {
   width = 0,
   height = 1,
