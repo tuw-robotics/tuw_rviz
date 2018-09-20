@@ -105,7 +105,7 @@ namespace tuw_object_rviz
       return;
     }
 
-    if ((determinant > 0 && cov[0][0] > 0) /* positive definite? */ || (std::abs(determinant - 0.00001) == 0.0 && (cov[0][0] > 0 || cov[1][1] > 0)) /* positive semidefinite? */)
+    if ((determinant > 0 && cov[0][0] > 0) /* positive definite? */ || (determinant >= 0.0 && (cov[0][0] > 0 || cov[1][1] > 0)) /* positive semidefinite? */)
     {
       calc_prob_elli_99(mean.x, mean.y, cov[0][0], cov[1][1], cov[0][1], numberOfPoints, xs, ys);
 

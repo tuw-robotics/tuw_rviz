@@ -93,7 +93,8 @@ void ObjectDetectionVisual::setMessage(const tuw_object_msgs::ObjectWithCovarian
     transform_.extract3x3Matrix(rotation_mat);
     C = rotation_mat * C * rotation_mat.Transpose();
 
-    covariance_->setOrientation(orientation);
+    Ogre::Quaternion ore = Ogre::Quaternion(1.0, 0, 0, 0);
+    covariance_->setOrientation(ore); // additionally setting an orientation seems to be wrong, hence 0 rotation here
     covariance_->setPosition(position);
     covariance_->setMeanCovariance(Ogre::Vector3(0, 0, 0), C);
     covariance_->setLineWidth(0.05);
