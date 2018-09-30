@@ -44,7 +44,6 @@
   <run_depend>tuw_geometry_rviz</run_depend>
   <run_depend>tuw_nav_rviz</run_depend>
   <run_depend>tuw_object_rviz</run_depend>
-  <run_depend>tuw_control_rviz</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
