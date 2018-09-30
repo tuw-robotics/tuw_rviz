@@ -104,8 +104,8 @@ find_package(Eigen3 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES tuw_control_rviz
-#  CATKIN_DEPENDS rviz tuw_nav_msgs
+  LIBRARIES tuw_control_rviz
+  CATKIN_DEPENDS rviz tuw_nav_msgs tuw_control
 #  DEPENDS system_lib
 )
 
