@@ -53,7 +53,7 @@ namespace tuw_graph_rviz_plugins
 namespace displays
 {
 
-PoseDisplay::PoseDisplay()
+GraphDisplay::GraphDisplay()
 : arrow_(nullptr), axes_(nullptr), pose_valid_(false)
 {
   shape_property_ = new rviz_common::properties::EnumProperty(
@@ -97,7 +97,7 @@ PoseDisplay::PoseDisplay()
     this, SLOT(updateAxisGeometry()));
 }
 
-void PoseDisplay::onInitialize()
+void GraphDisplay::onInitialize()
 {
   MFDClass::onInitialize();
 
@@ -118,30 +118,30 @@ void PoseDisplay::onInitialize()
   updateColorAndAlpha();
 }
 
-PoseDisplay::~PoseDisplay() = default;
+GraphDisplay::~GraphDisplay() = default;
 
-void PoseDisplay::onEnable()
+void GraphDisplay::onEnable()
 {
   MFDClass::onEnable();
   updateShapeVisibility();
   setupSelectionHandler();
 }
 
-void PoseDisplay::setupSelectionHandler()
+void GraphDisplay::setupSelectionHandler()
 {
   coll_handler_ = rviz_common::interaction::createSelectionHandler
-    <PoseDisplaySelectionHandler>(this, context_);
+    <GraphDisplaySelectionHandler>(this, context_);
   coll_handler_->addTrackedObjects(arrow_->getSceneNode());
   coll_handler_->addTrackedObjects(axes_->getSceneNode());
 }
 
-void PoseDisplay::onDisable()
+void GraphDisplay::onDisable()
 {
   MFDClass::onDisable();
   coll_handler_.reset();
 }
 
-void PoseDisplay::updateColorAndAlpha()
+void GraphDisplay::updateColorAndAlpha()
 {
   Ogre::ColourValue color = color_property_->getOgreColor();
   color.a = alpha_property_->getFloat();
@@ -151,7 +151,7 @@ void PoseDisplay::updateColorAndAlpha()
   context_->queueRender();
 }
 
-void PoseDisplay::updateArrowGeometry()
+void GraphDisplay::updateArrowGeometry()
 {
   arrow_->set(
     shaft_length_property_->getFloat(),
@@ -161,7 +161,7 @@ void PoseDisplay::updateArrowGeometry()
   context_->queueRender();
 }
 
-void PoseDisplay::updateAxisGeometry()
+void GraphDisplay::updateAxisGeometry()
 {
   axes_->set(
     axes_length_property_->getFloat(),
@@ -169,7 +169,7 @@ void PoseDisplay::updateAxisGeometry()
   context_->queueRender();
 }
 
-void PoseDisplay::updateShapeChoice()
+void GraphDisplay::updateShapeChoice()
 {
   bool use_arrow = (shape_property_->getOptionInt() == Arrow);
 
@@ -188,7 +188,7 @@ void PoseDisplay::updateShapeChoice()
   context_->queueRender();
 }
 
-void PoseDisplay::updateShapeVisibility()
+void GraphDisplay::updateShapeVisibility()
 {
   if (!pose_valid_) {
     arrow_->getSceneNode()->setVisible(false);
@@ -200,7 +200,7 @@ void PoseDisplay::updateShapeVisibility()
   }
 }
 
-void PoseDisplay::processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr message)
+void GraphDisplay::processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr message)
 {
   if (!rviz_common::validateFloats(*message)) {
     setStatus(
@@ -231,7 +231,7 @@ void PoseDisplay::processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr
   context_->queueRender();
 }
 
-void PoseDisplay::reset()
+void GraphDisplay::reset()
 {
   MFDClass::reset();
   pose_valid_ = false;
@@ -242,4 +242,4 @@ void PoseDisplay::reset()
 }  // namespace tuw_graph_rviz_plugins
 
 #include <pluginlib/class_list_macros.hpp>  // NOLINT
-PLUGINLIB_EXPORT_CLASS(tuw_graph_rviz_plugins::displays::PoseDisplay, rviz_common::Display)
+PLUGINLIB_EXPORT_CLASS(tuw_graph_rviz_plugins::displays::GraphDisplay, rviz_common::Display)

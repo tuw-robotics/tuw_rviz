@@ -49,8 +49,8 @@ namespace tuw_graph_rviz_plugins
 namespace displays
 {
 
-PoseDisplaySelectionHandler::PoseDisplaySelectionHandler(
-  PoseDisplay * display, rviz_common::DisplayContext * context)
+GraphDisplaySelectionHandler::GraphDisplaySelectionHandler(
+  GraphDisplay * display, rviz_common::DisplayContext * context)
 : SelectionHandler(context),
   display_(display),
   frame_property_(nullptr),
@@ -58,7 +58,7 @@ PoseDisplaySelectionHandler::PoseDisplaySelectionHandler(
   orientation_property_(nullptr)
 {}
 
-void PoseDisplaySelectionHandler::createProperties(
+void GraphDisplaySelectionHandler::createProperties(
   const rviz_common::interaction::Picked & obj,
   rviz_common::properties::Property * parent_property)
 {
@@ -79,7 +79,7 @@ void PoseDisplaySelectionHandler::createProperties(
   orientation_property_->setReadOnly(true);
 }
 
-rviz_common::interaction::V_AABB PoseDisplaySelectionHandler::getAABBs(
+rviz_common::interaction::V_AABB GraphDisplaySelectionHandler::getAABBs(
   const rviz_common::interaction::Picked & obj)
 {
   (void) obj;
@@ -90,7 +90,7 @@ rviz_common::interaction::V_AABB PoseDisplaySelectionHandler::getAABBs(
         would be less computationally expensive.
      */
     bool derive_world_bounding_box = true;
-    if (display_->shape_property_->getOptionInt() == PoseDisplay::Arrow) {
+    if (display_->shape_property_->getOptionInt() == GraphDisplay::Arrow) {
       aabbs.push_back(
         display_->arrow_->getHead()->getEntity()->getWorldBoundingBox(derive_world_bounding_box));
       aabbs.push_back(
@@ -107,7 +107,7 @@ rviz_common::interaction::V_AABB PoseDisplaySelectionHandler::getAABBs(
   return aabbs;
 }
 
-void PoseDisplaySelectionHandler::setMessage(
+void GraphDisplaySelectionHandler::setMessage(
   geometry_msgs::msg::PoseStamped::ConstSharedPtr message)
 {
   // properties_.size() should only be > 0 after createProperties()

@@ -55,7 +55,7 @@ namespace tuw_graph_rviz_plugins
 namespace displays
 {
 
-class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC PoseDisplaySelectionHandler : public
+class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC GraphDisplaySelectionHandler : public
   rviz_common::interaction::SelectionHandler
 {
 public:
@@ -68,9 +68,9 @@ public:
   void setMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr message);
 
 private:
-  PoseDisplaySelectionHandler(PoseDisplay * display, rviz_common::DisplayContext * context);
+  GraphDisplaySelectionHandler(GraphDisplay * display, rviz_common::DisplayContext * context);
 
-  PoseDisplay * display_;
+  GraphDisplay * display_;
   rviz_common::properties::StringProperty * frame_property_;
   rviz_common::properties::VectorProperty * position_property_;
   rviz_common::properties::QuaternionProperty * orientation_property_;

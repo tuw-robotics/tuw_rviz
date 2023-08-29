@@ -62,12 +62,12 @@ namespace tuw_graph_rviz_plugins
 namespace displays
 {
 
-class PoseDisplaySelectionHandler;
+class GraphDisplaySelectionHandler;
 
-typedef std::shared_ptr<PoseDisplaySelectionHandler> PoseDisplaySelectionHandlerPtr;
+typedef std::shared_ptr<GraphDisplaySelectionHandler> GraphDisplaySelectionHandlerPtr;
 
 /** @brief Accumulates and displays the pose from a geometry_msgs::PoseStamped message. */
-class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC PoseDisplay : public
+class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC GraphDisplay : public
   rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>
 {
   Q_OBJECT
@@ -79,9 +79,9 @@ public:
     Axes,
   };
 
-  PoseDisplay();
+  GraphDisplay();
 
-  ~PoseDisplay() override;
+  ~GraphDisplay() override;
   void onInitialize() override;
   void reset() override;
 
@@ -104,7 +104,7 @@ private:
   std::unique_ptr<rviz_rendering::Arrow> arrow_;
   std::unique_ptr<rviz_rendering::Axes> axes_;
   bool pose_valid_;
-  PoseDisplaySelectionHandlerPtr coll_handler_;
+  GraphDisplaySelectionHandlerPtr coll_handler_;
 
   rviz_common::properties::EnumProperty * shape_property_;
 
@@ -119,7 +119,7 @@ private:
   rviz_common::properties::FloatProperty * axes_length_property_;
   rviz_common::properties::FloatProperty * axes_radius_property_;
 
-  friend class PoseDisplaySelectionHandler;
+  friend class GraphDisplaySelectionHandler;
 };
 
 }  // namespace displays
