@@ -12,11 +12,10 @@ find_package(ament_cmake REQUIRED)
 find_package(rcpputils)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_rendering REQUIRED)
+find_package(tuw_graph_msgs REQUIRED)
 
 ## This setting causes Qt's "MOC" generation to happen automatically, which is required for
 ## Qt's signal/slot connections to work.
@@ -63,11 +62,11 @@ ament_target_dependencies(${PROJECT_NAME}
   PUBLIC
   rcpputils
   rclcpp
-  geometry_msgs
   rviz_common
   rviz_rendering
   rviz_default_plugins
   yaml_cpp_vendor
+  tuw_graph_msgs
 )
 
 # Export the plugin to be imported by rviz2
@@ -82,9 +81,10 @@ ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(
   rcpputils
   rclcpp
-  geometry_msgs
+  
   rviz_common
   rviz_rendering
+  tuw_graph_msgs
 )
 
 install(
@@ -103,6 +103,14 @@ install(
 install(
   DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/icons"
   DESTINATION "share/${PROJECT_NAME}"
+)
+
+install(
+  DIRECTORY
+    launch
+    config
+  DESTINATION
+    share/${PROJECT_NAME}/
 )
 
 # Install Python executables

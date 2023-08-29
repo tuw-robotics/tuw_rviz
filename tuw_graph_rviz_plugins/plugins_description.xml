@@ -3,12 +3,12 @@
     <!-- Displays plugins -->
   
   <class
-    name="tuw_graph_rviz_plugins/Pose"
-    type="tuw_graph_rviz_plugins::displays::PoseDisplay"
+    name="tuw_graph_rviz_plugins/Graph"
+    type="tuw_graph_rviz_plugins::displays::GraphDisplay"
     base_class_type="rviz_common::Display">
     <description>
-      Displays a geometry_msgs::PoseStamped message.  &lt;a href="http://www.ros.org/wiki/rviz/DisplayTypes/Pose"&gt;More Information&lt;/a&gt;.
+      Displays a geometry_msgs::Graph message.
     </description>
-    <message_type>geometry_msgs/msg/PoseStamped</message_type>
+    <message_type>geometry_msgs/msg/Graph</message_type>
   </class>
   </library>

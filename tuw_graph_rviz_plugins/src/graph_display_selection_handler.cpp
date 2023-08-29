@@ -85,30 +85,15 @@ rviz_common::interaction::V_AABB GraphDisplaySelectionHandler::getAABBs(
   (void) obj;
   rviz_common::interaction::V_AABB aabbs;
   if (display_->pose_valid_) {
-    /** with 'derive_world_bounding_box' set to 'true', the WorldBoundingBox is derived each time.
-        setting it to 'false' results in the wire box not properly following the pose arrow, but it
-        would be less computationally expensive.
-     */
-    bool derive_world_bounding_box = true;
-    if (display_->shape_property_->getOptionInt() == GraphDisplay::Arrow) {
-      aabbs.push_back(
-        display_->arrow_->getHead()->getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-      aabbs.push_back(
-        display_->arrow_->getShaft()->getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-    } else {
-      aabbs.push_back(
-        display_->axes_->getXShape().getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-      aabbs.push_back(
-        display_->axes_->getYShape().getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-      aabbs.push_back(
-        display_->axes_->getZShape().getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-    }
+    aabbs.push_back(display_->axes_->getXShape().getEntity()->getWorldBoundingBox(true));
+    aabbs.push_back(display_->axes_->getYShape().getEntity()->getWorldBoundingBox(true));
+    aabbs.push_back(display_->axes_->getZShape().getEntity()->getWorldBoundingBox(true));
   }
   return aabbs;
 }
 
 void GraphDisplaySelectionHandler::setMessage(
-  geometry_msgs::msg::PoseStamped::ConstSharedPtr message)
+  tuw_graph_msgs::msg::Graph::ConstSharedPtr message)
 {
   // properties_.size() should only be > 0 after createProperties()
   // and before destroyProperties(), during which frame_property_,
@@ -116,9 +101,9 @@ void GraphDisplaySelectionHandler::setMessage(
   // pointers.
   if (properties_.size() > 0) {
     frame_property_->setStdString(message->header.frame_id);
-    position_property_->setVector(rviz_common::pointMsgToOgre(message->pose.position));
+    position_property_->setVector(rviz_common::pointMsgToOgre(message->origin.position));
     orientation_property_->setQuaternion(
-      rviz_common::quaternionMsgToOgre(message->pose.orientation));
+      rviz_common::quaternionMsgToOgre(message->origin.orientation));
   }
 }
 

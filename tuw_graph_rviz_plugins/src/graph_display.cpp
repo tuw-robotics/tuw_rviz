@@ -36,6 +36,7 @@
 #include "rviz_rendering/objects/arrow.hpp"
 #include "rviz_rendering/objects/axes.hpp"
 #include "rviz_rendering/objects/shape.hpp"
+#include "rviz_rendering/objects/line.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/frame_manager_iface.hpp"
 #include "rviz_common/logging.hpp"
@@ -54,14 +55,8 @@ namespace displays
 {
 
 GraphDisplay::GraphDisplay()
-: arrow_(nullptr), axes_(nullptr), pose_valid_(false)
+: axes_(nullptr), pose_valid_(false)
 {
-  shape_property_ = new rviz_common::properties::EnumProperty(
-    "Shape", "Arrow", "Shape to display the pose as.",
-    this, SLOT(updateShapeChoice()));
-  shape_property_->addOption("Arrow", Arrow);
-  shape_property_->addOption("Axes", Axes);
-
   color_property_ = new rviz_common::properties::ColorProperty(
     "Color", QColor(255, 25, 0), "Color to draw the arrow.",
     this, SLOT(updateColorAndAlpha()));
@@ -71,22 +66,6 @@ GraphDisplay::GraphDisplay()
     this, SLOT(updateColorAndAlpha()));
   alpha_property_->setMin(0);
   alpha_property_->setMax(1);
-
-  shaft_length_property_ = new rviz_common::properties::FloatProperty(
-    "Shaft Length", 1, "Length of the arrow's shaft, in meters.",
-    this, SLOT(updateArrowGeometry()));
-
-  shaft_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Shaft Radius", 0.05f, "Radius of the arrow's shaft, in meters.",
-    this, SLOT(updateArrowGeometry()));
-
-  head_length_property_ = new rviz_common::properties::FloatProperty(
-    "Head Length", 0.3f, "Length of the arrow's head, in meters.",
-    this, SLOT(updateArrowGeometry()));
-
-  head_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Head Radius", 0.1f, "Radius of the arrow's head, in meters.",
-    this, SLOT(updateArrowGeometry()));
 
   axes_length_property_ = new rviz_common::properties::FloatProperty(
     "Axes Length", 1, "Length of each axis, in meters.",
@@ -100,14 +79,6 @@ GraphDisplay::GraphDisplay()
 void GraphDisplay::onInitialize()
 {
   MFDClass::onInitialize();
-
-  arrow_ = std::make_unique<rviz_rendering::Arrow>(
-    scene_manager_, scene_node_,
-    shaft_length_property_->getFloat(),
-    shaft_radius_property_->getFloat(),
-    head_length_property_->getFloat(),
-    head_radius_property_->getFloat());
-  arrow_->setDirection(Ogre::Vector3::UNIT_X);
 
   axes_ = std::make_unique<rviz_rendering::Axes>(
     scene_manager_, scene_node_,
@@ -131,7 +102,6 @@ void GraphDisplay::setupSelectionHandler()
 {
   coll_handler_ = rviz_common::interaction::createSelectionHandler
     <GraphDisplaySelectionHandler>(this, context_);
-  coll_handler_->addTrackedObjects(arrow_->getSceneNode());
   coll_handler_->addTrackedObjects(axes_->getSceneNode());
 }
 
@@ -145,19 +115,7 @@ void GraphDisplay::updateColorAndAlpha()
 {
   Ogre::ColourValue color = color_property_->getOgreColor();
   color.a = alpha_property_->getFloat();
-
-  arrow_->setColor(color);
-
-  context_->queueRender();
-}
-
-void GraphDisplay::updateArrowGeometry()
-{
-  arrow_->set(
-    shaft_length_property_->getFloat(),
-    shaft_radius_property_->getFloat(),
-    head_length_property_->getFloat(),
-    head_radius_property_->getFloat());
+  for(auto &l: lines_) l->setColor(color);
   context_->queueRender();
 }
 
@@ -171,18 +129,6 @@ void GraphDisplay::updateAxisGeometry()
 
 void GraphDisplay::updateShapeChoice()
 {
-  bool use_arrow = (shape_property_->getOptionInt() == Arrow);
-
-  color_property_->setHidden(!use_arrow);
-  alpha_property_->setHidden(!use_arrow);
-  shaft_length_property_->setHidden(!use_arrow);
-  shaft_radius_property_->setHidden(!use_arrow);
-  head_length_property_->setHidden(!use_arrow);
-  head_radius_property_->setHidden(!use_arrow);
-
-  axes_length_property_->setHidden(use_arrow);
-  axes_radius_property_->setHidden(use_arrow);
-
   updateShapeVisibility();
 
   context_->queueRender();
@@ -190,19 +136,14 @@ void GraphDisplay::updateShapeChoice()
 
 void GraphDisplay::updateShapeVisibility()
 {
-  if (!pose_valid_) {
-    arrow_->getSceneNode()->setVisible(false);
-    axes_->getSceneNode()->setVisible(false);
-  } else {
-    bool use_arrow = (shape_property_->getOptionInt() == Arrow);
-    arrow_->getSceneNode()->setVisible(use_arrow);
-    axes_->getSceneNode()->setVisible(!use_arrow);
+  if (pose_valid_) {
+    axes_->getSceneNode()->setVisible(true);
   }
 }
 
-void GraphDisplay::processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr message)
+void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message)
 {
-  if (!rviz_common::validateFloats(*message)) {
+  if (!rviz_common::validateFloats(message->origin)) {
     setStatus(
       rviz_common::properties::StatusProperty::Error, "Topic",
       "Message contained invalid floating point values (nans or infs)");
@@ -213,7 +154,7 @@ void GraphDisplay::processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPt
   Ogre::Quaternion orientation;
   if (
     !context_->getFrameManager()->transform(
-      message->header, message->pose, position, orientation))
+      message->header, message->origin, position, orientation))
   {
     setMissingTransformToFixedFrame(message->header.frame_id);
     return;
@@ -221,10 +162,30 @@ void GraphDisplay::processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPt
   setTransformOk();
 
   pose_valid_ = true;
+
+
+  size_t id_line = 0;
+  for (auto vertex: message->vertices){
+    for(size_t i = 1; i < vertex.path.size(); i++){
+      if(lines_.size() <= id_line)  {
+        lines_.push_back(std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_));
+        Ogre::ColourValue color = color_property_->getOgreColor();
+        lines_.back()->setColor(color);
+      }
+      geometry_msgs::msg::Point &start = vertex.path[i-1];
+      geometry_msgs::msg::Point &end   = vertex.path[i];
+      lines_[id_line++]->setPoints(Ogre::Vector3(start.x, start.y, start.z), Ogre::Vector3(end.x, end.y, end.z));
+    }
+  }
+
   updateShapeVisibility();
 
   scene_node_->setPosition(position);
   scene_node_->setOrientation(orientation);
+
+  
+  
+
 
   coll_handler_->setMessage(message);
 

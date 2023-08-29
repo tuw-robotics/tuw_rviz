@@ -33,7 +33,7 @@
 
 #include <memory>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "tuw_graph_msgs/msg/graph.hpp"
 
 #include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/interaction/forwards.hpp"
@@ -45,6 +45,7 @@ namespace rviz_rendering
 class Arrow;
 class Axes;
 class Shape;
+class Line;
 }  // namespace rviz_rendering
 
 namespace rviz_common
@@ -66,9 +67,9 @@ class GraphDisplaySelectionHandler;
 
 typedef std::shared_ptr<GraphDisplaySelectionHandler> GraphDisplaySelectionHandlerPtr;
 
-/** @brief Accumulates and displays the pose from a geometry_msgs::PoseStamped message. */
+/** @brief Accumulates and displays the pose from a tuw_graph_msgs::Graph message. */
 class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC GraphDisplay : public
-  rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>
+  rviz_common::MessageFilterDisplay<tuw_graph_msgs::msg::Graph>
 {
   Q_OBJECT
 
@@ -89,32 +90,25 @@ protected:
   /** @brief Overridden from MessageFilterDisplay to get arrow/axes visibility correct. */
   void onEnable() override;
   void onDisable() override;
-  void processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr message) override;
+  void processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message) override;
 
 private Q_SLOTS:
   void updateShapeVisibility();
   void updateColorAndAlpha();
   void updateShapeChoice();
   void updateAxisGeometry();
-  void updateArrowGeometry();
-
+  
 private:
   void setupSelectionHandler();
 
-  std::unique_ptr<rviz_rendering::Arrow> arrow_;
+
+  std::vector<std::unique_ptr<rviz_rendering::Line>> lines_;
   std::unique_ptr<rviz_rendering::Axes> axes_;
   bool pose_valid_;
   GraphDisplaySelectionHandlerPtr coll_handler_;
 
-  rviz_common::properties::EnumProperty * shape_property_;
-
   rviz_common::properties::ColorProperty * color_property_;
   rviz_common::properties::FloatProperty * alpha_property_;
-
-  rviz_common::properties::FloatProperty * head_radius_property_;
-  rviz_common::properties::FloatProperty * head_length_property_;
-  rviz_common::properties::FloatProperty * shaft_radius_property_;
-  rviz_common::properties::FloatProperty * shaft_length_property_;
 
   rviz_common::properties::FloatProperty * axes_length_property_;
   rviz_common::properties::FloatProperty * axes_radius_property_;

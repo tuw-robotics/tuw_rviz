@@ -33,7 +33,7 @@
 
 #include <memory>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "tuw_graph_msgs/msg/graph.hpp"
 
 #include "rviz_common/interaction/selection_handler.hpp"
 
@@ -65,7 +65,7 @@ public:
 
   rviz_common::interaction::V_AABB getAABBs(const rviz_common::interaction::Picked & obj) override;
 
-  void setMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr message);
+  void setMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message);
 
 private:
   GraphDisplaySelectionHandler(GraphDisplay * display, rviz_common::DisplayContext * context);

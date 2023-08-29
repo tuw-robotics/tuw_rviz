@@ -84,14 +84,15 @@ class publish_graph(Node):
         graph.origin.orientation.w = 1.
 
         graph.vertices.append(create_vertex(0, [[-6., -6.], [-5., -7.], [-4., -7.], [-3., -6.]], [1,6],[3]))
-        graph.vertices.append(create_vertex(1, [[-3., -6.], [-2., -2.], [+1., -3.]], [2,4],[0,6]))
-        graph.vertices.append(create_vertex(2, [[+1., -3.], [ 0., -5.], [ 0.,  6.]], [3],[1,4]))
-        graph.vertices.append(create_vertex(3, [[ 0., -5.], [-6., -6.]], [0],[2]))
-        graph.vertices.append(create_vertex(4, [[+1., -3.], [-1., -1.], [-2., 3.]], [5],[1,2]))
-        graph.vertices.append(create_vertex(5, [[-2.,  3.], [-3.,  4.], [-5., -3.]], [6],[4]))
-        graph.vertices.append(create_vertex(6, [[-5., -3.], [-6.,  0.], [-6., -3.]], [0,1],[5]))
+        graph.vertices.append(create_vertex(1, [[-3., -6.], [-2., -2.], [-3., +1.]], [2,4],[0,6]))
+        graph.vertices.append(create_vertex(2, [[-3., +1.], [-5.,  0.], [-6.,  0.]], [3],[1,4]))
+        graph.vertices.append(create_vertex(3, [[-6.,  0.], [-6., -6.]], [0],[2]))
+        graph.vertices.append(create_vertex(4, [[-3.,  1.], [-1., -1.], [ 3., -2.]], [5],[1,2]))
+        graph.vertices.append(create_vertex(5, [[ 3., -2.], [ 4., -3.], [ 3., -5.]], [6],[4]))
+        graph.vertices.append(create_vertex(6, [[ 3., -5.], [ 0., -6.], [-3., -6.]], [0,1],[5]))
 
         # Publish the BoundingBox3D message
+        graph.header = self.__header
         self.__pub.publish(graph)
         self.__counter += 1
 
