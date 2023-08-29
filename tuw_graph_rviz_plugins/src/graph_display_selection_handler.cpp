@@ -85,9 +85,9 @@ rviz_common::interaction::V_AABB GraphDisplaySelectionHandler::getAABBs(
   (void) obj;
   rviz_common::interaction::V_AABB aabbs;
   if (display_->pose_valid_) {
-    aabbs.push_back(display_->axes_->getXShape().getEntity()->getWorldBoundingBox(true));
-    aabbs.push_back(display_->axes_->getYShape().getEntity()->getWorldBoundingBox(true));
-    aabbs.push_back(display_->axes_->getZShape().getEntity()->getWorldBoundingBox(true));
+    aabbs.push_back(display_->origin_axes_->getXShape().getEntity()->getWorldBoundingBox(true));
+    aabbs.push_back(display_->origin_axes_->getYShape().getEntity()->getWorldBoundingBox(true));
+    aabbs.push_back(display_->origin_axes_->getZShape().getEntity()->getWorldBoundingBox(true));
   }
   return aabbs;
 }
