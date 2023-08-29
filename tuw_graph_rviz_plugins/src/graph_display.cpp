@@ -36,11 +36,11 @@ GraphDisplay::GraphDisplay()
     "Axes Radius", 0.1f, "Radius of each axis, in meters.",
     this, SLOT(updateAxisGeometry()));
 
-  alpha_property_ = new rviz_common::properties::FloatProperty(
+  vertices_alpha_property_ = new rviz_common::properties::FloatProperty(
     "Alpha", 1, "Amount of transparency to apply to the arrow.",
     this, SLOT(updateVerticesGeometry()));
-  alpha_property_->setMin(0);
-  alpha_property_->setMax(1);
+  vertices_alpha_property_->setMin(0);
+  vertices_alpha_property_->setMax(1);
 
   vertices_width_property_ = new rviz_common::properties::FloatProperty(
     "Width", 0.05f, "Vertices path width between edges.",
@@ -54,7 +54,11 @@ GraphDisplay::GraphDisplay()
 void GraphDisplay::onInitialize()
 {
   MFDClass::onInitialize();
-  //updateAxisGeometry();
+  origin_axes_ = std::make_unique<rviz_rendering::Axes>(
+    scene_manager_, scene_node_,
+    origin_axes_length_property_->getFloat(),
+    origin_axes_radius_property_->getFloat());
+  updateAxisGeometry();
 }
 
 GraphDisplay::~GraphDisplay() = default;
@@ -91,7 +95,7 @@ void GraphDisplay::updateVerticesGeometry()
 {
   float width = vertices_width_property_->getFloat();
   Ogre::ColourValue color = vertices_color_property_->getOgreColor();
-  color.a = alpha_property_->getFloat();
+  color.a = vertices_alpha_property_->getFloat();
   for(auto &path: paths_) {
     path->setColor(color.r, color.g, color.b, color.a);
     path->setLineWidth(width);
@@ -128,11 +132,10 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
 
   pose_valid_ = true;
 
-
   size_t id_vertex = 0;
   float width = vertices_width_property_->getFloat();
   Ogre::ColourValue color = vertices_color_property_->getOgreColor();
-  color.a = alpha_property_->getFloat();
+  color.a = vertices_alpha_property_->getFloat();
   for (auto vertex: message->vertices){
     if(paths_.size() <= id_vertex)  {
       /// create vertices

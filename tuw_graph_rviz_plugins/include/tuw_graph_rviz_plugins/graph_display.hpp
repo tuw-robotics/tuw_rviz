@@ -71,7 +71,7 @@ private:
   GraphDisplaySelectionHandlerPtr coll_handler_;
 
   rviz_common::properties::ColorProperty * vertices_color_property_;
-  rviz_common::properties::FloatProperty * alpha_property_;
+  rviz_common::properties::FloatProperty * vertices_alpha_property_;
   rviz_common::properties::FloatProperty * vertices_width_property_;
 
   rviz_common::properties::FloatProperty * origin_axes_length_property_;
