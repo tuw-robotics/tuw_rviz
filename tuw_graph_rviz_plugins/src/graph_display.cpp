@@ -130,7 +130,7 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
     return;
   }
   setTransformOk();
-
+#
   pose_valid_ = true;
 
   size_t id_vertex = 0;
