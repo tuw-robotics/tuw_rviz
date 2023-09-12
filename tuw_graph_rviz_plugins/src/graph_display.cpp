@@ -112,32 +112,18 @@ void GraphDisplay::updateShapeVisibility()
 
 void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message)
 {
-  /*
-  if (!rviz_common::validateFloats(message->origin)) {
-    setStatus(
-      rviz_common::properties::StatusProperty::Error, "Topic",
-      "Message contained invalid floating point values (nans or infs)");
-    return;
-  }
-
+  
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
-  if (
-    !context_->getFrameManager()->transform(
-      message->header, message->origin, position, orientation))
-  {
-    setMissingTransformToFixedFrame(message->header.frame_id);
-    return;
-  }
   setTransformOk();
-#
+
   pose_valid_ = true;
 
   size_t id_vertex = 0;
   float width = vertices_width_property_->getFloat();
   Ogre::ColourValue color = vertices_color_property_->getOgreColor();
   color.a = vertices_alpha_property_->getFloat();
-  for (auto vertex: message->vertices){
+  for (auto edge: message->edges){
     if(paths_.size() <= id_vertex)  {
       /// create vertices
       paths_.push_back(std::make_unique<rviz_rendering::BillboardLine>(scene_manager_, scene_node_));
@@ -145,8 +131,8 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
       paths_.back()->setLineWidth(width);
     }
     paths_[id_vertex]->clear();
-    for(size_t i = 0; i < vertex.path.size(); i++){
-      geometry_msgs::msg::Point &p   = vertex.path[i];
+    for(size_t i = 0; i < edge.path.size(); i++){
+      geometry_msgs::msg::Point &p   = edge.path[i];
       paths_[id_vertex]->addPoint(Ogre::Vector3(p.x, p.y, p.z));
     }
     id_vertex++;
@@ -160,7 +146,6 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
   coll_handler_->setMessage(message);
 
   context_->queueRender();
-  */
 }
 
 void GraphDisplay::reset()

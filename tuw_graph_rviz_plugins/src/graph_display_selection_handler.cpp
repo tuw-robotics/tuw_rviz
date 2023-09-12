@@ -101,9 +101,8 @@ void GraphDisplaySelectionHandler::setMessage(
   // pointers.
   if (properties_.size() > 0) {
     frame_property_->setStdString(message->header.frame_id);
-    position_property_->setVector(rviz_common::pointMsgToOgre(message->origin.position));
-    orientation_property_->setQuaternion(
-      rviz_common::quaternionMsgToOgre(message->origin.orientation));
+    position_property_->setVector(Ogre::Vector3(0, 0, 0));
+    orientation_property_->setQuaternion(Ogre::Quaternion(0, 0, 0, 1));
   }
 }
 
