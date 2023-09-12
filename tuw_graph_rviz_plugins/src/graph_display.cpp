@@ -112,6 +112,7 @@ void GraphDisplay::updateShapeVisibility()
 
 void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message)
 {
+  /*
   if (!rviz_common::validateFloats(message->origin)) {
     setStatus(
       rviz_common::properties::StatusProperty::Error, "Topic",
@@ -159,6 +160,7 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
   coll_handler_->setMessage(message);
 
   context_->queueRender();
+  */
 }
 
 void GraphDisplay::reset()
