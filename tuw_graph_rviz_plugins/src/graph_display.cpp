@@ -7,6 +7,7 @@
 #include "rviz_rendering/objects/shape.hpp"
 #include "rviz_rendering/objects/axes.hpp"
 #include "rviz_rendering/objects/billboard_line.hpp"
+#include "rviz_rendering/objects/line.hpp"
 #include "rviz_rendering/objects/shape.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/frame_manager_iface.hpp"
@@ -38,31 +39,27 @@ namespace tuw_graph_rviz_plugins
 
       edge_alpha_property_ = new rviz_common::properties::FloatProperty(
           "Edges alpha", 1, "Amount of transparency to apply to the edges.",
-          this, SLOT(updateVerticesGeometry()));
+          this, SLOT(updateEdgesGeometry()));
       edge_alpha_property_->setMin(0);
       edge_alpha_property_->setMax(1);
 
-      edge_width_property_ = new rviz_common::properties::FloatProperty(
-          "Edges width", 0.05f, "Edges path width",
-          this, SLOT(updateVerticesGeometry()));
-
       edge_color_property_ = new rviz_common::properties::ColorProperty(
           "Edges color", QColor(0, 255, 255), "Color to draw path",
-          this, SLOT(updateVerticesGeometry()));
+          this, SLOT(updateEdgesGeometry()));
 
       node_alpha_property_ = new rviz_common::properties::FloatProperty(
           "Nodes alpha", 1, "Amount of transparency to apply to the nodes.",
-          this, SLOT(updateVerticesGeometry()));
+          this, SLOT(updateNodesGeometry()));
       node_alpha_property_->setMin(0);
       node_alpha_property_->setMax(1);
 
       node_size_property_ = new rviz_common::properties::FloatProperty(
-          "Nodes size", 0.05f, "Node size.",
-          this, SLOT(updateVerticesGeometry()));
+          "Nodes size", 0.15f, "Node size.",
+          this, SLOT(updateNodesGeometry()));
 
       node_color_property_ = new rviz_common::properties::ColorProperty(
           "Nodes color", QColor(255, 0, 255), "Color to draw nodes",
-          this, SLOT(updateVerticesGeometry()));
+          this, SLOT(updateNodesGeometry()));
     }
 
     void GraphDisplay::onInitialize()
@@ -104,15 +101,26 @@ namespace tuw_graph_rviz_plugins
       context_->queueRender();
     }
 
-    void GraphDisplay::updateVerticesGeometry()
+    void GraphDisplay::updateNodesGeometry()
     {
-      float width = edge_width_property_->getFloat();
+      float size = node_size_property_->getFloat();
+      Ogre::ColourValue color = node_color_property_->getOgreColor();
+      color.a = node_alpha_property_->getFloat();
+      for (auto &node : nodes_)
+      {
+        node->setColor(color.r, color.g, color.b, color.a);
+        node->setScale(Ogre::Vector3(size, size, size));
+      }
+      context_->queueRender();
+    }
+
+    void GraphDisplay::updateEdgesGeometry()
+    {
       Ogre::ColourValue color = edge_color_property_->getOgreColor();
       color.a = edge_alpha_property_->getFloat();
-      for (auto &path : paths_)
+      for (auto &edge : path_)
       {
-        path->setColor(color.r, color.g, color.b, color.a);
-        path->setLineWidth(width);
+        edge->setColor(color.r, color.g, color.b, color.a);
       }
       context_->queueRender();
     }
@@ -122,40 +130,56 @@ namespace tuw_graph_rviz_plugins
       if (pose_valid_)
       {
         origin_axes_->getSceneNode()->setVisible(true);
-        for(auto &path: paths_) path->getSceneNode()->setVisible(true);
-        //for(auto &node: nodes_) node->getSceneNode()->setVisible(true);
       }
     }
 
     void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message)
     {
 
-      Ogre::Vector3 position;
-      Ogre::Quaternion orientation;
+      //Ogre::Vector3 position(0., 0., 0.);
+      //Ogre::Quaternion orientation(0., 0., 0., 1.);
       setTransformOk();
 
-      pose_valid_ = true;
-      if(false){
-        float width = edge_width_property_->getFloat();
+      if(true){
         Ogre::ColourValue color = edge_color_property_->getOgreColor();
         color.a = edge_alpha_property_->getFloat();
+        size_t count_lines = 0;
+        geometry_msgs::msg::Point start, end;
         for (size_t i = 0; i < message->edges.size(); i++)
         {
-          if (paths_.size() <= i)
-          {
-            /// create vertices
-            paths_.push_back(std::make_unique<rviz_rendering::BillboardLine>(scene_manager_, scene_node_));
-            paths_.back()->setColor(color.r, color.g, color.b, color.a);
-            paths_.back()->setLineWidth(width);
-          }
-          paths_[i]->clear();
-          for (size_t j = 0; j < message->edges[i].path.size(); j++)
-          {
-            const geometry_msgs::msg::Point &p = message->edges[i].path[j];
-            paths_[i]->addPoint(Ogre::Vector3(p.x, p.y, p.z));
-          }
+          const auto &edge = message->edges[i]; 
+          if(edge.nodes.size() != 2) RCUTILS_LOG_INFO("An edge needs to nodes!");
+            for(auto &node: message->nodes) {
+              if (node.id == edge.nodes[0]) {
+                start = node.position;
+                break;
+              }
+            }; 
+
+            for (size_t j = 0; j < edge.path.size(); j++){
+                if(path_.size() <= count_lines){
+                  path_.push_back(std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_));
+                  path_.back()->setColor(color);
+                }
+                end = edge.path[j];
+                path_[count_lines]->setPoints(Ogre::Vector3(start.x, start.y, start.z), Ogre::Vector3(end.x, end.y, end.z));
+                count_lines++;
+                start = end;
+            }
+            for(auto &node: message->nodes) {
+              if (node.id == edge.nodes[1]) {
+                end = node.position;
+                break;
+              }
+            }; 
+            if(path_.size() <= count_lines){
+              path_.push_back(std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_));
+              path_.back()->setColor(color);
+            }
+            path_[count_lines]->setPoints(Ogre::Vector3(start.x, start.y, start.z), Ogre::Vector3(end.x, end.y, end.z));
+            count_lines++;
         }
-        if(paths_.size() > message->edges.size()) paths_.resize(message->edges.size());
+        if(path_.size() > count_lines) path_.resize(count_lines);
       }
       if(true){
         float size = node_size_property_->getFloat();
@@ -175,10 +199,12 @@ namespace tuw_graph_rviz_plugins
         if(nodes_.size() > message->nodes.size()) nodes_.resize(message->nodes.size());
       }
 
+      pose_valid_ = true;
       updateShapeVisibility();
 
-      scene_node_->setPosition(position);
-      scene_node_->setOrientation(orientation);
+      //scene_node_->setPosition(position);
+      //scene_node_->setOrientation(orientation);
+      //scene_node_->setVisible(true);
 
       coll_handler_->setMessage(message);
 

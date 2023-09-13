@@ -14,6 +14,7 @@
 namespace rviz_rendering
 {
 class BillboardLine;
+class Line;
 class Axes;
 class Shape;
 }  // namespace rviz_rendering
@@ -60,13 +61,14 @@ protected:
 private Q_SLOTS:
   void updateShapeVisibility();
   void updateAxisGeometry();
-  void updateVerticesGeometry();
+  void updateEdgesGeometry();
+  void updateNodesGeometry();
 
 private:
   void setupSelectionHandler();
 
 
-  std::vector<std::unique_ptr<rviz_rendering::BillboardLine>> paths_;
+  std::vector<std::unique_ptr<rviz_rendering::Line>> path_;
   std::vector<std::unique_ptr<rviz_rendering::Shape>> nodes_;
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
   bool pose_valid_;
@@ -74,8 +76,6 @@ private:
 
   rviz_common::properties::ColorProperty *edge_color_property_;
   rviz_common::properties::FloatProperty *edge_alpha_property_;
-  rviz_common::properties::FloatProperty *edge_width_property_;
-
 
   rviz_common::properties::ColorProperty *node_color_property_;
   rviz_common::properties::FloatProperty *node_alpha_property_;
