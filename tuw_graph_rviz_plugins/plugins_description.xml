@@ -7,8 +7,8 @@
     type="tuw_graph_rviz_plugins::displays::GraphDisplay"
     base_class_type="rviz_common::Display">
     <description>
-      Displays a tuw_graph_rviz_plugins::Graph message.
+      Displays a tuw_graph_msgs::Graph message.
     </description>
-    <message_type>tuw_graph_rviz_plugins/msg/Graph</message_type>
+    <message_type>tuw_graph_msgs/msg/Graph</message_type>
   </class>
   </library>

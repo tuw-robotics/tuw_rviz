@@ -15,6 +15,7 @@ namespace rviz_rendering
 {
 class BillboardLine;
 class Axes;
+class Shape;
 }  // namespace rviz_rendering
 
 namespace rviz_common
@@ -66,16 +67,22 @@ private:
 
 
   std::vector<std::unique_ptr<rviz_rendering::BillboardLine>> paths_;
+  std::vector<std::unique_ptr<rviz_rendering::Shape>> nodes_;
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
   bool pose_valid_;
   GraphDisplaySelectionHandlerPtr coll_handler_;
 
-  rviz_common::properties::ColorProperty * vertices_color_property_;
-  rviz_common::properties::FloatProperty * vertices_alpha_property_;
-  rviz_common::properties::FloatProperty * vertices_width_property_;
+  rviz_common::properties::ColorProperty *edge_color_property_;
+  rviz_common::properties::FloatProperty *edge_alpha_property_;
+  rviz_common::properties::FloatProperty *edge_width_property_;
 
-  rviz_common::properties::FloatProperty * origin_axes_length_property_;
-  rviz_common::properties::FloatProperty * origin_axes_radius_property_;
+
+  rviz_common::properties::ColorProperty *node_color_property_;
+  rviz_common::properties::FloatProperty *node_alpha_property_;
+  rviz_common::properties::FloatProperty *node_size_property_;
+
+  rviz_common::properties::FloatProperty *origin_axes_length_property_;
+  rviz_common::properties::FloatProperty *origin_axes_radius_property_;
 
   friend class GraphDisplaySelectionHandler;
 };
