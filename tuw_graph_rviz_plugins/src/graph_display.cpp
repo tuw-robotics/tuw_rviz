@@ -143,43 +143,21 @@ namespace tuw_graph_rviz_plugins
       if(true){
         Ogre::ColourValue color = edge_color_property_->getOgreColor();
         color.a = edge_alpha_property_->getFloat();
-        size_t count_lines = 0;
         geometry_msgs::msg::Point start, end;
+        path_.clear();
         for (size_t i = 0; i < message->edges.size(); i++)
         {
           const auto &edge = message->edges[i]; 
-          if(edge.nodes.size() != 2) RCUTILS_LOG_INFO("An edge needs two nodes!");
-            for(auto &node: message->nodes) {
-              if (node.id == edge.nodes[0]) {
-                start = node.position;
-                break;
-              }
-            }; 
 
-            for (size_t j = 0; j < edge.path.size(); j++){
-                if(path_.size() <= count_lines){
-                  path_.push_back(std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_));
-                  path_.back()->setColor(color);
-                }
+            for (size_t j = 1; j < edge.path.size(); j++){
+                auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
+                line->setColor(color);
+                start = edge.path[j-1];
                 end = edge.path[j];
-                path_[count_lines]->setPoints(Ogre::Vector3(start.x, start.y, start.z), Ogre::Vector3(end.x, end.y, end.z));
-                count_lines++;
-                start = end;
+                line->setPoints(Ogre::Vector3(start.x, start.y, start.z), Ogre::Vector3(end.x, end.y, end.z));
+                path_.push_back(std::move(line));
             }
-            for(auto &node: message->nodes) {
-              if (node.id == edge.nodes[1]) {
-                end = node.position;
-                break;
-              }
-            }; 
-            if(path_.size() <= count_lines){
-              path_.push_back(std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_));
-              path_.back()->setColor(color);
-            }
-            path_[count_lines]->setPoints(Ogre::Vector3(start.x, start.y, start.z), Ogre::Vector3(end.x, end.y, end.z));
-            count_lines++;
         }
-        if(path_.size() > count_lines) path_.resize(count_lines);
       }
       if(true){
         float size = node_size_property_->getFloat();
