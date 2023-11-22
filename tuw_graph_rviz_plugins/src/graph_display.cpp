@@ -148,7 +148,7 @@ namespace tuw_graph_rviz_plugins
         for (size_t i = 0; i < message->edges.size(); i++)
         {
           const auto &edge = message->edges[i]; 
-          if(edge.nodes.size() != 2) RCUTILS_LOG_INFO("An edge needs to nodes!");
+          if(edge.nodes.size() != 2) RCUTILS_LOG_INFO("An edge needs two nodes!");
             for(auto &node: message->nodes) {
               if (node.id == edge.nodes[0]) {
                 start = node.position;
