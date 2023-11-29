@@ -8,6 +8,7 @@
 #include "rviz_rendering/objects/axes.hpp"
 #include "rviz_rendering/objects/billboard_line.hpp"
 #include "rviz_rendering/objects/line.hpp"
+#include "rviz_rendering/objects/arrow.hpp"
 #include "rviz_rendering/objects/shape.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/frame_manager_iface.hpp"
@@ -29,6 +30,11 @@ namespace tuw_graph_rviz_plugins
         : origin_axes_(nullptr), pose_valid_(false)
     {
 
+
+      origin_axes_length_property_ = new rviz_common::properties::FloatProperty(
+          "Axes Length", 1, "Length of each axis, in meters.",
+          this, SLOT(updateAxisGeometry()));
+
       origin_axes_length_property_ = new rviz_common::properties::FloatProperty(
           "Axes Length", 1, "Length of each axis, in meters.",
           this, SLOT(updateAxisGeometry()));
@@ -37,12 +43,21 @@ namespace tuw_graph_rviz_plugins
           "Axes Radius", 0.1f, "Radius of each axis, in meters.",
           this, SLOT(updateAxisGeometry()));
 
+      path_show_property_ = new rviz_common::properties::BoolProperty(
+          "Show Path", false, "Shows path between nodes.",
+          this, SLOT(updateAxisGeometry()));
+
+      edge_arrow_property_ = new rviz_common::properties::FloatProperty(
+          "Edge Arrow Size", 0.1f, "Size of the the edge arrow. 0 means off.",
+          this, SLOT(updateShapeVisibility()));
+      edge_show_property_ = new rviz_common::properties::BoolProperty(
+          "Draw Edge", true, "Draws edges between nodes.",
+          this, SLOT(updateShapeVisibility()));
       edge_alpha_property_ = new rviz_common::properties::FloatProperty(
           "Edges alpha", 1, "Amount of transparency to apply to the edges.",
           this, SLOT(updateEdgesGeometry()));
       edge_alpha_property_->setMin(0);
       edge_alpha_property_->setMax(1);
-
       edge_color_property_ = new rviz_common::properties::ColorProperty(
           "Edges color", QColor(0, 255, 255), "Color to draw path",
           this, SLOT(updateEdgesGeometry()));
@@ -52,13 +67,11 @@ namespace tuw_graph_rviz_plugins
           this, SLOT(updateNodesGeometry()));
       node_alpha_property_->setMin(0);
       node_alpha_property_->setMax(1);
-
-      node_size_property_ = new rviz_common::properties::FloatProperty(
-          "Nodes size", 0.15f, "Node size.",
-          this, SLOT(updateNodesGeometry()));
-
       node_color_property_ = new rviz_common::properties::ColorProperty(
           "Nodes color", QColor(255, 0, 255), "Color to draw nodes",
+          this, SLOT(updateNodesGeometry()));
+      node_size_property_ = new rviz_common::properties::FloatProperty(
+          "Nodes size", 0.15f, "Node size.",
           this, SLOT(updateNodesGeometry()));
     }
 
@@ -106,7 +119,7 @@ namespace tuw_graph_rviz_plugins
       float size = node_size_property_->getFloat();
       Ogre::ColourValue color = node_color_property_->getOgreColor();
       color.a = node_alpha_property_->getFloat();
-      for (auto &node : nodes_)
+      for (auto &node : node_shapes_)
       {
         node->setColor(color.r, color.g, color.b, color.a);
         node->setScale(Ogre::Vector3(size, size, size));
@@ -131,58 +144,94 @@ namespace tuw_graph_rviz_plugins
       {
         origin_axes_->getSceneNode()->setVisible(true);
       }
+      bool draw_edge_lines = edge_show_property_->getBool();
+      for (auto & line: edge_lines_)
+      {
+        line->setVisible(draw_edge_lines);
+      }
+      
+      bool draw_edge_arrows = (draw_edge_lines && (edge_arrow_property_->getFloat() > 0.));
+      for (auto & arrow: edge_arrows_)
+      {
+        arrow->setVisible(draw_edge_arrows);
+      }
     }
 
     void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message)
     {
-
-      //Ogre::Vector3 position(0., 0., 0.);
-      //Ogre::Quaternion orientation(0., 0., 0., 1.);
+      Ogre::Vector3 position;
+      Ogre::Quaternion orientation;
+      if (
+          !context_->getFrameManager()->transform(
+              message->header, message->origin, position, orientation))
+      {
+        setMissingTransformToFixedFrame(message->header.frame_id);
+        return;
+      }
       setTransformOk();
-
-      if(true){
-        Ogre::ColourValue color = edge_color_property_->getOgreColor();
-        color.a = edge_alpha_property_->getFloat();
-        geometry_msgs::msg::Point start, end;
-        path_.clear();
-        for (size_t i = 0; i < message->edges.size(); i++)
-        {
-          const auto &edge = message->edges[i]; 
-
-            for (size_t j = 1; j < edge.path.size(); j++){
-                auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
-                line->setColor(color);
-                start = edge.path[j-1];
-                end = edge.path[j];
-                line->setPoints(Ogre::Vector3(start.x, start.y, start.z), Ogre::Vector3(end.x, end.y, end.z));
-                path_.push_back(std::move(line));
-            }
-        }
-      }
-      if(true){
-        float size = node_size_property_->getFloat();
-        Ogre::ColourValue color = node_color_property_->getOgreColor();
-        for (size_t i = 0; i < message->nodes.size(); i++)
-        {
-          if (nodes_.size() <= i)
-          {
-            /// create vertices
-            nodes_.push_back(std::make_unique<rviz_rendering::Shape>(rviz_rendering::Shape::Sphere, scene_manager_, scene_node_));
-            nodes_.back()->setColor(color.r, color.g, color.b, color.a);
-            nodes_.back()->setScale(Ogre::Vector3(size, size, size));
-          }
-          const geometry_msgs::msg::Point &p =  message->nodes[i].position;
-          nodes_[i]->setPosition(Ogre::Vector3(p.x, p.y, p.z));
-        }
-        if(nodes_.size() > message->nodes.size()) nodes_.resize(message->nodes.size());
-      }
-
       pose_valid_ = true;
+
+      nodes_.clear();
+      for (const auto &node : message->nodes)
+      {
+        nodes_[node.id] = Ogre::Vector3(node.position.x, node.position.y, node.position.z);
+      }
+
+      Ogre::ColourValue color_node = node_color_property_->getOgreColor();
+      Ogre::Vector3 size_node(node_size_property_->getFloat(), node_size_property_->getFloat(), node_size_property_->getFloat());
+      node_shapes_.clear();
+      for (const auto &[id, position] : nodes_)
+      {
+        auto shape = std::make_unique<rviz_rendering::Shape>(rviz_rendering::Shape::Sphere, scene_manager_, scene_node_);
+        shape->setColor(color_node);
+        shape->setScale(size_node);
+        shape->setPosition(position);
+        node_shapes_.push_back(std::move(shape));
+      }
+
+      edge_lines_.clear();
+      edge_arrows_.clear();
+      Ogre::ColourValue color_edge = edge_color_property_->getOgreColor();
+      Ogre::Vector3 start, end, diff, unit, shaft, offsetL, offsetR, startL, startR;
+      for (const auto &edge : message->edges)
+      {
+        if (auto it = nodes_.find(edge.nodes[0]); it == nodes_.end())
+          continue;
+        else
+          start = it->second;
+        if (auto it = nodes_.find(edge.nodes[1]); it == nodes_.end())
+          continue;
+        else
+          end = it->second;
+        auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
+        line->setColor(color_edge);
+        line->setPoints(start, end);
+        edge_lines_.push_back(std::move(line));
+        unit = end - start;
+        unit.normalise();
+        if(edge_arrow_property_->getFloat() > 0.){
+          shaft = unit * edge_arrow_property_->getFloat();
+          double a = 20. * M_PI / 180.;
+          offsetL = Ogre::Vector3(shaft.x * cos(+a) + shaft.y * -sin(+a), shaft.x * sin(+a) + shaft.y * cos(+a), shaft.z);
+          offsetR = Ogre::Vector3(shaft.x * cos(-a) + shaft.y * -sin(-a), shaft.x * sin(-a) + shaft.y * cos(-a), shaft.z);
+          auto lineL = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
+          lineL->setColor(color_edge);
+          startL = end - offsetL;
+          lineL->setPoints(startL, end);
+          edge_arrows_.push_back(std::move(lineL));
+          auto lineR = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
+          lineR->setColor(color_edge);
+          startR = end - offsetR;
+          lineR->setPoints(startR, end);
+          edge_arrows_.push_back(std::move(lineR));
+        }
+      }
+
+      coll_handler_->setMessage(message);
       updateShapeVisibility();
 
-      //scene_node_->setPosition(position);
-      //scene_node_->setOrientation(orientation);
-      //scene_node_->setVisible(true);
+      scene_node_->setPosition(position);
+      scene_node_->setOrientation(orientation);
 
       coll_handler_->setMessage(message);
 

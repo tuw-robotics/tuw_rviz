@@ -2,6 +2,7 @@
 #define TUW_GRAPH_RVIZ_PLUGINS__DISPLAYS__POSE__POSE_DISPLAY_HPP_
 
 #include <memory>
+#include <map>
 
 #include "tuw_graph_msgs/msg/graph.hpp"
 
@@ -17,6 +18,7 @@ class BillboardLine;
 class Line;
 class Axes;
 class Shape;
+class Arrow;
 }  // namespace rviz_rendering
 
 namespace rviz_common
@@ -68,14 +70,23 @@ private:
   void setupSelectionHandler();
 
 
+  std::map<int64_t, Ogre::Vector3> nodes_;
+  std::vector<std::unique_ptr<rviz_rendering::Shape>> node_shapes_;
+  std::vector<std::unique_ptr<rviz_rendering::Line>> edge_arrows_;
+  std::vector<std::unique_ptr<rviz_rendering::Line>> edge_lines_;
   std::vector<std::unique_ptr<rviz_rendering::Line>> path_;
-  std::vector<std::unique_ptr<rviz_rendering::Shape>> nodes_;
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
   bool pose_valid_;
   GraphDisplaySelectionHandlerPtr coll_handler_;
 
+  rviz_common::properties::BoolProperty  *edge_show_property_;
   rviz_common::properties::ColorProperty *edge_color_property_;
   rviz_common::properties::FloatProperty *edge_alpha_property_;
+  rviz_common::properties::FloatProperty *edge_arrow_property_;
+
+  rviz_common::properties::BoolProperty  *path_show_property_;
+  rviz_common::properties::ColorProperty *path_color_property_;
+  rviz_common::properties::FloatProperty *path_alpha_property_;
 
   rviz_common::properties::ColorProperty *node_color_property_;
   rviz_common::properties::FloatProperty *node_alpha_property_;
