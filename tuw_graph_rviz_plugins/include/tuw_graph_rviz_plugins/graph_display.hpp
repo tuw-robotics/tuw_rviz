@@ -64,6 +64,7 @@ private Q_SLOTS:
   void updateShapeVisibility();
   void updateAxisGeometry();
   void updateEdgesGeometry();
+  void updatePathGeometry();
   void updateNodesGeometry();
 
 private:
@@ -74,7 +75,7 @@ private:
   std::vector<std::unique_ptr<rviz_rendering::Shape>> node_shapes_;
   std::vector<std::unique_ptr<rviz_rendering::Line>> edge_arrows_;
   std::vector<std::unique_ptr<rviz_rendering::Line>> edge_lines_;
-  std::vector<std::unique_ptr<rviz_rendering::Line>> path_;
+  std::vector<std::unique_ptr<rviz_rendering::Line>> edge_paths_;
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
   bool pose_valid_;
   GraphDisplaySelectionHandlerPtr coll_handler_;
@@ -88,6 +89,7 @@ private:
   rviz_common::properties::ColorProperty *path_color_property_;
   rviz_common::properties::FloatProperty *path_alpha_property_;
 
+  rviz_common::properties::BoolProperty  *node_show_property_;
   rviz_common::properties::ColorProperty *node_color_property_;
   rviz_common::properties::FloatProperty *node_alpha_property_;
   rviz_common::properties::FloatProperty *node_size_property_;
