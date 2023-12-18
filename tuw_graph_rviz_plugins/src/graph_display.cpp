@@ -214,7 +214,8 @@ namespace tuw_graph_rviz_plugins
       nodes_.clear();
       for (const auto &node : message->nodes)
       {
-        nodes_[node.id] = Ogre::Vector3(node.position.x, node.position.y, node.position.z);
+        const geometry_msgs::msg::Point &p = node.pose.position;
+        nodes_[node.id] = Ogre::Vector3(p.x, p.y, p.z);
       }
 
       Ogre::ColourValue color_node = node_color_property_->getOgreColor();
@@ -276,7 +277,8 @@ namespace tuw_graph_rviz_plugins
           Ogre::ColourValue color_path = path_color_property_->getOgreColor();
           color_path.a = path_alpha_property_->getFloat();
           Ogre::Vector3 p0 = start, p1;
-          for(const auto &p: edge.path){
+          for(const auto &pose: edge.path){
+            const geometry_msgs::msg::Point &p = pose.position;
             p1 = Ogre::Vector3(p.x, p.y, p.z);
             auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
             line->setPoints(p0, p1);
