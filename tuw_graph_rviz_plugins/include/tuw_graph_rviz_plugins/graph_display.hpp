@@ -47,7 +47,6 @@ class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC GraphDisplay : public
   Q_OBJECT
 
 public:
-
   GraphDisplay();
 
   ~GraphDisplay() override;
@@ -80,22 +79,22 @@ private:
   bool pose_valid_;
   GraphDisplaySelectionHandlerPtr coll_handler_;
 
-  rviz_common::properties::BoolProperty  *edge_show_property_;
-  rviz_common::properties::ColorProperty *edge_color_property_;
-  rviz_common::properties::FloatProperty *edge_alpha_property_;
-  rviz_common::properties::FloatProperty *edge_arrow_property_;
+  rviz_common::properties::BoolProperty * edge_show_property_;
+  rviz_common::properties::ColorProperty * edge_color_property_;
+  rviz_common::properties::FloatProperty * edge_alpha_property_;
+  rviz_common::properties::FloatProperty * edge_arrow_property_;
 
-  rviz_common::properties::BoolProperty  *path_show_property_;
-  rviz_common::properties::ColorProperty *path_color_property_;
-  rviz_common::properties::FloatProperty *path_alpha_property_;
+  rviz_common::properties::BoolProperty * path_show_property_;
+  rviz_common::properties::ColorProperty * path_color_property_;
+  rviz_common::properties::FloatProperty * path_alpha_property_;
 
-  rviz_common::properties::BoolProperty  *node_show_property_;
-  rviz_common::properties::ColorProperty *node_color_property_;
-  rviz_common::properties::FloatProperty *node_alpha_property_;
-  rviz_common::properties::FloatProperty *node_size_property_;
+  rviz_common::properties::BoolProperty * node_show_property_;
+  rviz_common::properties::ColorProperty * node_color_property_;
+  rviz_common::properties::FloatProperty * node_alpha_property_;
+  rviz_common::properties::FloatProperty * node_size_property_;
 
-  rviz_common::properties::FloatProperty *origin_axes_length_property_;
-  rviz_common::properties::FloatProperty *origin_axes_radius_property_;
+  rviz_common::properties::FloatProperty * origin_axes_length_property_;
+  rviz_common::properties::FloatProperty * origin_axes_radius_property_;
 
   friend class GraphDisplaySelectionHandler;
 };

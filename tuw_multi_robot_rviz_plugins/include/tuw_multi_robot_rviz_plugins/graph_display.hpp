@@ -43,7 +43,6 @@ class TUW_MULTI_ROBOT_RVIZ_PLUGINS_PUBLIC GraphDisplay : public
   Q_OBJECT
 
 public:
-
   GraphDisplay();
 
   ~GraphDisplay() override;
