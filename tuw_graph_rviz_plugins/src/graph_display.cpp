@@ -191,20 +191,26 @@ void GraphDisplay::updateShapeVisibility()
 
 void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message)
 {
+  static tuw_graph_msgs::msg::Graph msg;
+  /// Prevent double processing of same messages
+  if(msg == *message)
+    return;
+  msg = *message;
+
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
   if (
     !context_->getFrameManager()->transform(
-      message->header, message->origin, position, orientation))
+      msg.header, msg.origin, position, orientation))
   {
-    setMissingTransformToFixedFrame(message->header.frame_id);
+    setMissingTransformToFixedFrame(msg.header.frame_id);
     return;
   }
   setTransformOk();
   pose_valid_ = true;
 
   nodes_.clear();
-  for (const auto & node : message->nodes) {
+  for (const auto & node : msg.nodes) {
     const geometry_msgs::msg::Point & p = node.pose.position;
     nodes_[node.id] = Ogre::Vector3(p.x, p.y, p.z);
   }
@@ -216,7 +222,7 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
   node_shapes_.clear();
   for (const auto &[id, position] : nodes_) {
     auto shape = std::make_unique<rviz_rendering::Shape>(
-      rviz_rendering::Shape::Sphere,
+      rviz_rendering::Shape::Cube,
       scene_manager_, scene_node_);
     shape->setColor(color_node);
     shape->setScale(size_node);
@@ -230,7 +236,7 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
   Ogre::ColourValue color_edge = edge_color_property_->getOgreColor();
   color_edge.a = edge_alpha_property_->getFloat();
   Ogre::Vector3 start, end, diff, unit, shaft, offsetL, offsetR, startL, startR;
-  for (const auto & edge : message->edges) {
+  for (const auto & edge : msg.edges) {
     if (auto it = nodes_.find(edge.nodes[0]); it == nodes_.end()) {
       continue;
     } else {
