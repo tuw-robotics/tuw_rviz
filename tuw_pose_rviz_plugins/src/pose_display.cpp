@@ -29,23 +29,23 @@
 
 #include "tuw_pose_rviz_plugins/pose_display.hpp"
 
-#include <memory>
-
 #include <OgreSceneNode.h>
 
-#include "rviz_rendering/objects/arrow.hpp"
-#include "rviz_rendering/objects/axes.hpp"
-#include "rviz_rendering/objects/shape.hpp"
+#include <memory>
+
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/frame_manager_iface.hpp"
+#include "rviz_common/interaction/selection_manager.hpp"
 #include "rviz_common/logging.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/enum_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/quaternion_property.hpp"
 #include "rviz_common/properties/vector_property.hpp"
-#include "rviz_common/interaction/selection_manager.hpp"
 #include "rviz_common/validate_floats.hpp"
+#include "rviz_rendering/objects/arrow.hpp"
+#include "rviz_rendering/objects/axes.hpp"
+#include "rviz_rendering/objects/shape.hpp"
 #include "tuw_pose_rviz_plugins/pose_display_selection_handler.hpp"
 
 namespace tuw_pose_rviz_plugins
@@ -53,48 +53,42 @@ namespace tuw_pose_rviz_plugins
 namespace displays
 {
 
-PoseDisplay::PoseDisplay()
-: arrow_(nullptr), axes_(nullptr), pose_valid_(false)
+PoseDisplay::PoseDisplay() : arrow_(nullptr), axes_(nullptr), pose_valid_(false)
 {
   shape_property_ = new rviz_common::properties::EnumProperty(
-    "Shape", "Arrow", "Shape to display the pose as.",
-    this, SLOT(updateShapeChoice()));
+    "Shape", "Arrow", "Shape to display the pose as.", this, SLOT(updateShapeChoice()));
   shape_property_->addOption("Arrow", Arrow);
   shape_property_->addOption("Axes", Axes);
 
   color_property_ = new rviz_common::properties::ColorProperty(
-    "Color", QColor(255, 25, 0), "Color to draw the arrow.",
-    this, SLOT(updateColorAndAlpha()));
+    "Color", QColor(255, 25, 0), "Color to draw the arrow.", this, SLOT(updateColorAndAlpha()));
 
   alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Alpha", 1, "Amount of transparency to apply to the arrow.",
-    this, SLOT(updateColorAndAlpha()));
+    "Alpha", 1, "Amount of transparency to apply to the arrow.", this, SLOT(updateColorAndAlpha()));
   alpha_property_->setMin(0);
   alpha_property_->setMax(1);
 
   shaft_length_property_ = new rviz_common::properties::FloatProperty(
-    "Shaft Length", 1, "Length of the arrow's shaft, in meters.",
-    this, SLOT(updateArrowGeometry()));
+    "Shaft Length", 1, "Length of the arrow's shaft, in meters.", this,
+    SLOT(updateArrowGeometry()));
 
   shaft_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Shaft Radius", 0.05f, "Radius of the arrow's shaft, in meters.",
-    this, SLOT(updateArrowGeometry()));
+    "Shaft Radius", 0.05f, "Radius of the arrow's shaft, in meters.", this,
+    SLOT(updateArrowGeometry()));
 
   head_length_property_ = new rviz_common::properties::FloatProperty(
-    "Head Length", 0.3f, "Length of the arrow's head, in meters.",
-    this, SLOT(updateArrowGeometry()));
+    "Head Length", 0.3f, "Length of the arrow's head, in meters.", this,
+    SLOT(updateArrowGeometry()));
 
   head_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Head Radius", 0.1f, "Radius of the arrow's head, in meters.",
-    this, SLOT(updateArrowGeometry()));
+    "Head Radius", 0.1f, "Radius of the arrow's head, in meters.", this,
+    SLOT(updateArrowGeometry()));
 
   axes_length_property_ = new rviz_common::properties::FloatProperty(
-    "Axes Length", 1, "Length of each axis, in meters.",
-    this, SLOT(updateAxisGeometry()));
+    "Axes Length", 1, "Length of each axis, in meters.", this, SLOT(updateAxisGeometry()));
 
   axes_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Axes Radius", 0.1f, "Radius of each axis, in meters.",
-    this, SLOT(updateAxisGeometry()));
+    "Axes Radius", 0.1f, "Radius of each axis, in meters.", this, SLOT(updateAxisGeometry()));
 }
 
 void PoseDisplay::onInitialize()
@@ -102,16 +96,13 @@ void PoseDisplay::onInitialize()
   MFDClass::onInitialize();
 
   arrow_ = std::make_unique<rviz_rendering::Arrow>(
-    scene_manager_, scene_node_,
-    shaft_length_property_->getFloat(),
-    shaft_radius_property_->getFloat(),
-    head_length_property_->getFloat(),
+    scene_manager_, scene_node_, shaft_length_property_->getFloat(),
+    shaft_radius_property_->getFloat(), head_length_property_->getFloat(),
     head_radius_property_->getFloat());
   arrow_->setDirection(Ogre::Vector3::UNIT_X);
 
   axes_ = std::make_unique<rviz_rendering::Axes>(
-    scene_manager_, scene_node_,
-    axes_length_property_->getFloat(),
+    scene_manager_, scene_node_, axes_length_property_->getFloat(),
     axes_radius_property_->getFloat());
 
   updateShapeChoice();
@@ -129,8 +120,8 @@ void PoseDisplay::onEnable()
 
 void PoseDisplay::setupSelectionHandler()
 {
-  coll_handler_ = rviz_common::interaction::createSelectionHandler
-    <PoseDisplaySelectionHandler>(this, context_);
+  coll_handler_ =
+    rviz_common::interaction::createSelectionHandler<PoseDisplaySelectionHandler>(this, context_);
   coll_handler_->addTrackedObjects(arrow_->getSceneNode());
   coll_handler_->addTrackedObjects(axes_->getSceneNode());
 }
@@ -154,18 +145,14 @@ void PoseDisplay::updateColorAndAlpha()
 void PoseDisplay::updateArrowGeometry()
 {
   arrow_->set(
-    shaft_length_property_->getFloat(),
-    shaft_radius_property_->getFloat(),
-    head_length_property_->getFloat(),
-    head_radius_property_->getFloat());
+    shaft_length_property_->getFloat(), shaft_radius_property_->getFloat(),
+    head_length_property_->getFloat(), head_radius_property_->getFloat());
   context_->queueRender();
 }
 
 void PoseDisplay::updateAxisGeometry()
 {
-  axes_->set(
-    axes_length_property_->getFloat(),
-    axes_radius_property_->getFloat());
+  axes_->set(axes_length_property_->getFloat(), axes_radius_property_->getFloat());
   context_->queueRender();
 }
 
@@ -211,10 +198,8 @@ void PoseDisplay::processMessage(geometry_msgs::msg::PoseStamped::ConstSharedPtr
 
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
-  if (
-    !context_->getFrameManager()->transform(
-      message->header, message->pose, position, orientation))
-  {
+  if (!context_->getFrameManager()->transform(
+        message->header, message->pose, position, orientation)) {
     setMissingTransformToFixedFrame(message->header.frame_id);
     return;
   }

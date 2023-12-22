@@ -32,16 +32,16 @@
 
 #include <OgreEntity.h>
 
-#include "rviz_rendering/objects/axes.hpp"
-#include "rviz_rendering/objects/arrow.hpp"
-#include "rviz_rendering/objects/shape.hpp"
+#include "rviz_common/display_context.hpp"
 #include "rviz_common/interaction/selection_handler.hpp"
 #include "rviz_common/msg_conversions.hpp"
-#include "rviz_common/properties/vector_property.hpp"
-#include "rviz_common/properties/string_property.hpp"
-#include "rviz_common/properties/quaternion_property.hpp"
 #include "rviz_common/properties/enum_property.hpp"
-#include "rviz_common/display_context.hpp"
+#include "rviz_common/properties/quaternion_property.hpp"
+#include "rviz_common/properties/string_property.hpp"
+#include "rviz_common/properties/vector_property.hpp"
+#include "rviz_rendering/objects/arrow.hpp"
+#include "rviz_rendering/objects/axes.hpp"
+#include "rviz_rendering/objects/shape.hpp"
 #include "tuw_multi_robot_rviz_plugins/graph_display.hpp"
 
 namespace tuw_multi_robot_rviz_plugins
@@ -56,13 +56,13 @@ GraphDisplaySelectionHandler::GraphDisplaySelectionHandler(
   frame_property_(nullptr),
   position_property_(nullptr),
   orientation_property_(nullptr)
-{}
+{
+}
 
 void GraphDisplaySelectionHandler::createProperties(
-  const rviz_common::interaction::Picked & obj,
-  rviz_common::properties::Property * parent_property)
+  const rviz_common::interaction::Picked & obj, rviz_common::properties::Property * parent_property)
 {
-  (void) obj;
+  (void)obj;
   rviz_common::properties::Property * cat = new rviz_common::properties::Property(
     "Pose " + display_->getName(), QVariant(), "", parent_property);
   properties_.push_back(cat);
@@ -70,8 +70,8 @@ void GraphDisplaySelectionHandler::createProperties(
   frame_property_ = new rviz_common::properties::StringProperty("Frame", "", "", cat);
   frame_property_->setReadOnly(true);
 
-  position_property_ = new rviz_common::properties::VectorProperty(
-    "Position", Ogre::Vector3::ZERO, "", cat);
+  position_property_ =
+    new rviz_common::properties::VectorProperty("Position", Ogre::Vector3::ZERO, "", cat);
   position_property_->setReadOnly(true);
 
   orientation_property_ = new rviz_common::properties::QuaternionProperty(
@@ -82,7 +82,7 @@ void GraphDisplaySelectionHandler::createProperties(
 rviz_common::interaction::V_AABB GraphDisplaySelectionHandler::getAABBs(
   const rviz_common::interaction::Picked & obj)
 {
-  (void) obj;
+  (void)obj;
   rviz_common::interaction::V_AABB aabbs;
   if (display_->pose_valid_) {
     aabbs.push_back(display_->origin_axes_->getXShape().getEntity()->getWorldBoundingBox(true));

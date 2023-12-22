@@ -1,15 +1,12 @@
 #ifndef TUW_GRAPH_RVIZ_PLUGINS__DISPLAYS__POSE__POSE_DISPLAY_HPP_
 #define TUW_GRAPH_RVIZ_PLUGINS__DISPLAYS__POSE__POSE_DISPLAY_HPP_
 
-#include <memory>
 #include <map>
+#include <memory>
 
-#include "tuw_graph_msgs/msg/graph.hpp"
-
-#include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/interaction/forwards.hpp"
-
-
+#include "rviz_common/message_filter_display.hpp"
+#include "tuw_graph_msgs/msg/graph.hpp"
 #include "tuw_graph_rviz_plugins/visibility_control.hpp"
 
 namespace rviz_rendering
@@ -41,8 +38,8 @@ class GraphDisplaySelectionHandler;
 typedef std::shared_ptr<GraphDisplaySelectionHandler> GraphDisplaySelectionHandlerPtr;
 
 /** @brief Accumulates and displays the pose from a tuw_graph_msgs::Graph message. */
-class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC GraphDisplay : public
-  rviz_common::MessageFilterDisplay<tuw_graph_msgs::msg::Graph>
+class TUW_GRAPH_RVIZ_PLUGINS_PUBLIC GraphDisplay
+: public rviz_common::MessageFilterDisplay<tuw_graph_msgs::msg::Graph>
 {
   Q_OBJECT
 
@@ -68,7 +65,6 @@ private Q_SLOTS:
 
 private:
   void setupSelectionHandler();
-
 
   std::map<int64_t, Ogre::Vector3> nodes_;
   std::vector<std::unique_ptr<rviz_rendering::Shape>> node_shapes_;

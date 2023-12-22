@@ -27,17 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef TUW_POSE_RVIZ_PLUGINS__DISPLAYS__POSE__POSE_DISPLAY_HPP_
 #define TUW_POSE_RVIZ_PLUGINS__DISPLAYS__POSE__POSE_DISPLAY_HPP_
 
 #include <memory>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
-
-#include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/interaction/forwards.hpp"
-
+#include "rviz_common/message_filter_display.hpp"
 #include "tuw_pose_rviz_plugins/visibility_control.hpp"
 
 namespace rviz_rendering
@@ -67,14 +64,13 @@ class PoseDisplaySelectionHandler;
 typedef std::shared_ptr<PoseDisplaySelectionHandler> PoseDisplaySelectionHandlerPtr;
 
 /** @brief Accumulates and displays the pose from a geometry_msgs::PoseStamped message. */
-class TUW_POSE_RVIZ_PLUGINS_PUBLIC PoseDisplay : public
-  rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>
+class TUW_POSE_RVIZ_PLUGINS_PUBLIC PoseDisplay
+: public rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>
 {
   Q_OBJECT
 
 public:
-  enum Shape
-  {
+  enum Shape {
     Arrow,
     Axes,
   };

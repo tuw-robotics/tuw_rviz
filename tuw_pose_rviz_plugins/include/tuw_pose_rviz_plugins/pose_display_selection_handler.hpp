@@ -34,9 +34,7 @@
 #include <memory>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
-
 #include "rviz_common/interaction/selection_handler.hpp"
-
 #include "tuw_pose_rviz_plugins/pose_display.hpp"
 #include "tuw_pose_rviz_plugins/visibility_control.hpp"
 
@@ -55,8 +53,8 @@ namespace tuw_pose_rviz_plugins
 namespace displays
 {
 
-class TUW_POSE_RVIZ_PLUGINS_PUBLIC PoseDisplaySelectionHandler : public
-  rviz_common::interaction::SelectionHandler
+class TUW_POSE_RVIZ_PLUGINS_PUBLIC PoseDisplaySelectionHandler
+: public rviz_common::interaction::SelectionHandler
 {
 public:
   void createProperties(
@@ -75,9 +73,9 @@ private:
   rviz_common::properties::VectorProperty * position_property_;
   rviz_common::properties::QuaternionProperty * orientation_property_;
 
-  template<typename T, typename ... Args>
-  friend typename std::shared_ptr<T>
-  rviz_common::interaction::createSelectionHandler(Args ... arguments);
+  template <typename T, typename... Args>
+  friend typename std::shared_ptr<T> rviz_common::interaction::createSelectionHandler(
+    Args... arguments);
 };
 
 }  // namespace displays

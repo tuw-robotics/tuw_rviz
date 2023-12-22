@@ -34,31 +34,31 @@
 //     https://gcc.gnu.org/wiki/Visibility
 
 #if defined _WIN32 || defined __CYGWIN__
-  #ifdef __GNUC__
-    #define TUW_GRAPH_RVIZ_PLUGINS_EXPORT __attribute__ ((dllexport))
-    #define TUW_GRAPH_RVIZ_PLUGINS_IMPORT __attribute__ ((dllimport))
-  #else
-    #define TUW_GRAPH_RVIZ_PLUGINS_EXPORT __declspec(dllexport)
-    #define TUW_GRAPH_RVIZ_PLUGINS_IMPORT __declspec(dllimport)
-  #endif
-  #ifdef TUW_GRAPH_RVIZ_PLUGINS_BUILDING_LIBRARY
-    #define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC TUW_GRAPH_RVIZ_PLUGINS_EXPORT
-  #else
-    #define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC TUW_GRAPH_RVIZ_PLUGINS_IMPORT
-  #endif
-  #define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC_TYPE TUW_GRAPH_RVIZ_PLUGINS_PUBLIC
-  #define TUW_GRAPH_RVIZ_PLUGINS_LOCAL
+#ifdef __GNUC__
+#define TUW_GRAPH_RVIZ_PLUGINS_EXPORT __attribute__((dllexport))
+#define TUW_GRAPH_RVIZ_PLUGINS_IMPORT __attribute__((dllimport))
 #else
-  #define TUW_GRAPH_RVIZ_PLUGINS_EXPORT __attribute__ ((visibility("default")))
-  #define TUW_GRAPH_RVIZ_PLUGINS_IMPORT
-  #if __GNUC__ >= 4
-    #define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC __attribute__ ((visibility("default")))
-    #define TUW_GRAPH_RVIZ_PLUGINS_LOCAL  __attribute__ ((visibility("hidden")))
-  #else
-    #define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC
-    #define TUW_GRAPH_RVIZ_PLUGINS_LOCAL
-  #endif
-  #define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC_TYPE
+#define TUW_GRAPH_RVIZ_PLUGINS_EXPORT __declspec(dllexport)
+#define TUW_GRAPH_RVIZ_PLUGINS_IMPORT __declspec(dllimport)
+#endif
+#ifdef TUW_GRAPH_RVIZ_PLUGINS_BUILDING_LIBRARY
+#define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC TUW_GRAPH_RVIZ_PLUGINS_EXPORT
+#else
+#define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC TUW_GRAPH_RVIZ_PLUGINS_IMPORT
+#endif
+#define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC_TYPE TUW_GRAPH_RVIZ_PLUGINS_PUBLIC
+#define TUW_GRAPH_RVIZ_PLUGINS_LOCAL
+#else
+#define TUW_GRAPH_RVIZ_PLUGINS_EXPORT __attribute__((visibility("default")))
+#define TUW_GRAPH_RVIZ_PLUGINS_IMPORT
+#if __GNUC__ >= 4
+#define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC __attribute__((visibility("default")))
+#define TUW_GRAPH_RVIZ_PLUGINS_LOCAL __attribute__((visibility("hidden")))
+#else
+#define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC
+#define TUW_GRAPH_RVIZ_PLUGINS_LOCAL
+#endif
+#define TUW_GRAPH_RVIZ_PLUGINS_PUBLIC_TYPE
 #endif
 
 #endif  // TUW_GRAPH_RVIZ_PLUGINS__VISIBILITY_CONTROL_HPP_

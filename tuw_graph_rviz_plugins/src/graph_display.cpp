@@ -1,98 +1,82 @@
 #include "tuw_graph_rviz_plugins/graph_display.hpp"
 
-#include <memory>
-
 #include <OgreSceneNode.h>
 
-#include "rviz_rendering/objects/shape.hpp"
-#include "rviz_rendering/objects/axes.hpp"
-#include "rviz_rendering/objects/billboard_line.hpp"
-#include "rviz_rendering/objects/line.hpp"
-#include "rviz_rendering/objects/arrow.hpp"
-#include "rviz_rendering/objects/shape.hpp"
+#include <memory>
+
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/frame_manager_iface.hpp"
+#include "rviz_common/interaction/selection_manager.hpp"
 #include "rviz_common/logging.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/enum_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/quaternion_property.hpp"
 #include "rviz_common/properties/vector_property.hpp"
-#include "rviz_common/interaction/selection_manager.hpp"
 #include "rviz_common/validate_floats.hpp"
+#include "rviz_rendering/objects/arrow.hpp"
+#include "rviz_rendering/objects/axes.hpp"
+#include "rviz_rendering/objects/billboard_line.hpp"
+#include "rviz_rendering/objects/line.hpp"
+#include "rviz_rendering/objects/shape.hpp"
 #include "tuw_graph_rviz_plugins/graph_display_selection_handler.hpp"
 
 namespace tuw_graph_rviz_plugins
 {
 namespace displays
 {
-GraphDisplay::GraphDisplay()
-: origin_axes_(nullptr), pose_valid_(false)
+GraphDisplay::GraphDisplay() : origin_axes_(nullptr), pose_valid_(false)
 {
-
+  origin_axes_length_property_ = new rviz_common::properties::FloatProperty(
+    "Axes Length", 1, "Length of each axis, in meters.", this, SLOT(updateAxisGeometry()));
 
   origin_axes_length_property_ = new rviz_common::properties::FloatProperty(
-    "Axes Length", 1, "Length of each axis, in meters.",
-    this, SLOT(updateAxisGeometry()));
-
-  origin_axes_length_property_ = new rviz_common::properties::FloatProperty(
-    "Axes Length", 1, "Length of each axis, in meters.",
-    this, SLOT(updateAxisGeometry()));
+    "Axes Length", 1, "Length of each axis, in meters.", this, SLOT(updateAxisGeometry()));
 
   origin_axes_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Axes Radius", 0.1f, "Radius of each axis, in meters.",
-    this, SLOT(updateAxisGeometry()));
+    "Axes Radius", 0.1f, "Radius of each axis, in meters.", this, SLOT(updateAxisGeometry()));
 
   path_show_property_ = new rviz_common::properties::BoolProperty(
-    "Show Path", true, "Shows path between nodes.",
-    this, SLOT(updateShapeVisibility()));
+    "Show Path", true, "Shows path between nodes.", this, SLOT(updateShapeVisibility()));
   path_alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Path alpha", 1, "Amount of transparency to apply to the path.",
-    this, SLOT(updatePathGeometry()));
+    "Path alpha", 1, "Amount of transparency to apply to the path.", this,
+    SLOT(updatePathGeometry()));
   path_alpha_property_->setMin(0);
   path_alpha_property_->setMax(1);
   path_color_property_ = new rviz_common::properties::ColorProperty(
-    "Path color", QColor(0, 255, 0), "Color to draw path",
-    this, SLOT(updatePathGeometry()));
-
+    "Path color", QColor(0, 255, 0), "Color to draw path", this, SLOT(updatePathGeometry()));
 
   edge_arrow_property_ = new rviz_common::properties::FloatProperty(
-    "Edge Arrow Size", 0.1f, "Size of the the edge arrow. 0 means off.",
-    this, SLOT(updateShapeVisibility()));
+    "Edge Arrow Size", 0.1f, "Size of the the edge arrow. 0 means off.", this,
+    SLOT(updateShapeVisibility()));
   edge_show_property_ = new rviz_common::properties::BoolProperty(
-    "Draw Edge", true, "Draws edges between nodes.",
-    this, SLOT(updateShapeVisibility()));
+    "Draw Edge", true, "Draws edges between nodes.", this, SLOT(updateShapeVisibility()));
   edge_alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Edges alpha", 1, "Amount of transparency to apply to the edges.",
-    this, SLOT(updateEdgesGeometry()));
+    "Edges alpha", 1, "Amount of transparency to apply to the edges.", this,
+    SLOT(updateEdgesGeometry()));
   edge_alpha_property_->setMin(0);
   edge_alpha_property_->setMax(1);
   edge_color_property_ = new rviz_common::properties::ColorProperty(
-    "Edges color", QColor(0, 255, 255), "Color to draw edges",
-    this, SLOT(updateEdgesGeometry()));
+    "Edges color", QColor(0, 255, 255), "Color to draw edges", this, SLOT(updateEdgesGeometry()));
 
   node_alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Nodes alpha", 1, "Amount of transparency to apply to the nodes.",
-    this, SLOT(updateNodesGeometry()));
+    "Nodes alpha", 1, "Amount of transparency to apply to the nodes.", this,
+    SLOT(updateNodesGeometry()));
   node_show_property_ = new rviz_common::properties::BoolProperty(
-    "Draw Node", true, "Draws nodes.",
-    this, SLOT(updateShapeVisibility()));
+    "Draw Node", true, "Draws nodes.", this, SLOT(updateShapeVisibility()));
   node_alpha_property_->setMin(0);
   node_alpha_property_->setMax(1);
   node_color_property_ = new rviz_common::properties::ColorProperty(
-    "Nodes color", QColor(255, 0, 255), "Color to draw nodes",
-    this, SLOT(updateNodesGeometry()));
+    "Nodes color", QColor(255, 0, 255), "Color to draw nodes", this, SLOT(updateNodesGeometry()));
   node_size_property_ = new rviz_common::properties::FloatProperty(
-    "Nodes size", 0.15f, "Node size.",
-    this, SLOT(updateNodesGeometry()));
+    "Nodes size", 0.15f, "Node size.", this, SLOT(updateNodesGeometry()));
 }
 
 void GraphDisplay::onInitialize()
 {
   MFDClass::onInitialize();
   origin_axes_ = std::make_unique<rviz_rendering::Axes>(
-    scene_manager_, scene_node_,
-    origin_axes_length_property_->getFloat(),
+    scene_manager_, scene_node_, origin_axes_length_property_->getFloat(),
     origin_axes_radius_property_->getFloat());
   updateAxisGeometry();
 }
@@ -108,8 +92,8 @@ void GraphDisplay::onEnable()
 
 void GraphDisplay::setupSelectionHandler()
 {
-  coll_handler_ = rviz_common::interaction::createSelectionHandler<GraphDisplaySelectionHandler>(
-    this, context_);
+  coll_handler_ =
+    rviz_common::interaction::createSelectionHandler<GraphDisplaySelectionHandler>(this, context_);
   coll_handler_->addTrackedObjects(origin_axes_->getSceneNode());
 }
 
@@ -122,8 +106,7 @@ void GraphDisplay::onDisable()
 void GraphDisplay::updateAxisGeometry()
 {
   origin_axes_->set(
-    origin_axes_length_property_->getFloat(),
-    origin_axes_radius_property_->getFloat());
+    origin_axes_length_property_->getFloat(), origin_axes_radius_property_->getFloat());
   context_->queueRender();
 }
 
@@ -138,7 +121,6 @@ void GraphDisplay::updateNodesGeometry()
   }
   context_->queueRender();
 }
-
 
 void GraphDisplay::updatePathGeometry()
 {
@@ -169,22 +151,22 @@ void GraphDisplay::updateShapeVisibility()
     origin_axes_->getSceneNode()->setVisible(true);
   }
   bool draw_edge_lines = edge_show_property_->getBool();
-  for (auto & line: edge_lines_) {
+  for (auto & line : edge_lines_) {
     line->setVisible(draw_edge_lines);
   }
 
   bool draw_edge_arrows = (draw_edge_lines && (edge_arrow_property_->getFloat() > 0.));
-  for (auto & arrow: edge_arrows_) {
+  for (auto & arrow : edge_arrows_) {
     arrow->setVisible(draw_edge_arrows);
   }
   bool draw_path_lines = path_show_property_->getBool();
-  for (auto & line: edge_paths_) {
+  for (auto & line : edge_paths_) {
     line->setVisible(draw_path_lines);
   }
 
   Ogre::ColourValue color_node = node_color_property_->getOgreColor();
   color_node.a = (node_show_property_->getBool() ? node_alpha_property_->getFloat() : 0.);
-  for (auto & node: node_shapes_) {
+  for (auto & node : node_shapes_) {
     node->setColor(color_node);
   }
 }
@@ -193,16 +175,14 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
 {
   static tuw_graph_msgs::msg::Graph msg;
   /// Prevent double processing of same messages
-  if(msg == *message)
+  if (msg == *message) {
     return;
+  }
   msg = *message;
 
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
-  if (
-    !context_->getFrameManager()->transform(
-      msg.header, msg.origin, position, orientation))
-  {
+  if (!context_->getFrameManager()->transform(msg.header, msg.origin, position, orientation)) {
     setMissingTransformToFixedFrame(msg.header.frame_id);
     return;
   }
@@ -217,13 +197,13 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
 
   Ogre::ColourValue color_node = node_color_property_->getOgreColor();
   color_node.a = node_alpha_property_->getFloat();
-  Ogre::Vector3 size_node(node_size_property_->getFloat(), node_size_property_->getFloat(),
+  Ogre::Vector3 size_node(
+    node_size_property_->getFloat(), node_size_property_->getFloat(),
     node_size_property_->getFloat());
   node_shapes_.clear();
-  for (const auto &[id, position] : nodes_) {
+  for (const auto & [id, position] : nodes_) {
     auto shape = std::make_unique<rviz_rendering::Shape>(
-      rviz_rendering::Shape::Cube,
-      scene_manager_, scene_node_);
+      rviz_rendering::Shape::Cube, scene_manager_, scene_node_);
     shape->setColor(color_node);
     shape->setScale(size_node);
     shape->setPosition(position);
@@ -257,11 +237,9 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
       shaft = unit * edge_arrow_property_->getFloat();
       double a = 20. * M_PI / 180.;
       offsetL = Ogre::Vector3(
-        shaft.x * cos(+a) + shaft.y * -sin(+a), shaft.x * sin(
-          +a) + shaft.y * cos(+a), shaft.z);
+        shaft.x * cos(+a) + shaft.y * -sin(+a), shaft.x * sin(+a) + shaft.y * cos(+a), shaft.z);
       offsetR = Ogre::Vector3(
-        shaft.x * cos(-a) + shaft.y * -sin(-a), shaft.x * sin(
-          -a) + shaft.y * cos(-a), shaft.z);
+        shaft.x * cos(-a) + shaft.y * -sin(-a), shaft.x * sin(-a) + shaft.y * cos(-a), shaft.z);
       auto lineL = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
       lineL->setColor(color_edge);
       startL = end - offsetL;
@@ -274,14 +252,13 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
       edge_arrows_.push_back(std::move(lineR));
     }
 
-
     {
       /// the path starts with the start node and ends with the end node.
       /// edge.start -> ... edge.path ... -> edge.end
       Ogre::ColourValue color_path = path_color_property_->getOgreColor();
       color_path.a = path_alpha_property_->getFloat();
       Ogre::Vector3 p0 = start, p1;
-      for (const auto & pose: edge.path) {
+      for (const auto & pose : edge.path) {
         const geometry_msgs::msg::Point & p = pose.position;
         p1 = Ogre::Vector3(p.x, p.y, p.z);
         auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
@@ -296,7 +273,6 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
       edge_paths_.push_back(std::move(line));
     }
   }
-
 
   coll_handler_->setMessage(message);
   updateShapeVisibility();
@@ -316,8 +292,8 @@ void GraphDisplay::reset()
   updateShapeVisibility();
 }
 
-}   // namespace displays
-} // namespace tuw_graph_rviz_plugins
+}  // namespace displays
+}  // namespace tuw_graph_rviz_plugins
 
-#include <pluginlib/class_list_macros.hpp> // NOLINT
+#include <pluginlib/class_list_macros.hpp>  // NOLINT
 PLUGINLIB_EXPORT_CLASS(tuw_graph_rviz_plugins::displays::GraphDisplay, rviz_common::Display)

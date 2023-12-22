@@ -3,12 +3,9 @@
 
 #include <memory>
 
-#include "tuw_multi_robot_msgs/msg/graph.hpp"
-
-#include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/interaction/forwards.hpp"
-
-
+#include "rviz_common/message_filter_display.hpp"
+#include "tuw_multi_robot_msgs/msg/graph.hpp"
 #include "tuw_multi_robot_rviz_plugins/visibility_control.hpp"
 
 namespace rviz_rendering
@@ -37,8 +34,8 @@ class GraphDisplaySelectionHandler;
 typedef std::shared_ptr<GraphDisplaySelectionHandler> GraphDisplaySelectionHandlerPtr;
 
 /** @brief Accumulates and displays the pose from a tuw_graph_msgs::Graph message. */
-class TUW_MULTI_ROBOT_RVIZ_PLUGINS_PUBLIC GraphDisplay : public
-  rviz_common::MessageFilterDisplay<tuw_multi_robot_msgs::msg::Graph>
+class TUW_MULTI_ROBOT_RVIZ_PLUGINS_PUBLIC GraphDisplay
+: public rviz_common::MessageFilterDisplay<tuw_multi_robot_msgs::msg::Graph>
 {
   Q_OBJECT
 
@@ -62,7 +59,6 @@ private Q_SLOTS:
 
 private:
   void setupSelectionHandler();
-
 
   std::vector<std::unique_ptr<rviz_rendering::BillboardLine>> paths_;
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
