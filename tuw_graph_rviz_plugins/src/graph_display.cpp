@@ -115,32 +115,26 @@ void GraphDisplay::updateNodesGeometry()
   float size = node_size_property_->getFloat();
   Ogre::ColourValue color = node_color_property_->getOgreColor();
   color.a = node_alpha_property_->getFloat();
-  for (auto & node : node_shapes_) {
-    node->setColor(color.r, color.g, color.b, color.a);
-    node->setScale(Ogre::Vector3(size, size, size));
-  }
-  context_->queueRender();
-}
-
-void GraphDisplay::updatePathGeometry()
-{
-  Ogre::ColourValue color = path_color_property_->getOgreColor();
-  color.a = path_alpha_property_->getFloat();
-  for (auto & lines : edge_paths_) {
-    lines->setColor(color.r, color.g, color.b, color.a);
+  for (auto & [id, node] : nodes_) {
+    node.shape->setColor(color.r, color.g, color.b, color.a);
+    node.shape->setScale(Ogre::Vector3(size, size, size));
   }
   context_->queueRender();
 }
 
 void GraphDisplay::updateEdgesGeometry()
 {
-  Ogre::ColourValue color = edge_color_property_->getOgreColor();
-  color.a = edge_alpha_property_->getFloat();
-  for (auto &[id, edge] : edge_lines_) {
-    edge->setColor(color.r, color.g, color.b, color.a);
-  }
-  for (auto & edge : edge_arrows_) {
-    edge->setColor(color.r, color.g, color.b, color.a);
+  Ogre::ColourValue color_edge = edge_color_property_->getOgreColor();
+  color_edge.a = edge_alpha_property_->getFloat();
+  Ogre::ColourValue color_path = path_color_property_->getOgreColor();
+  color_path.a = path_alpha_property_->getFloat();
+  for (auto &[id, edge] : edges_) {
+    edge.line->setColor(color_edge);
+    edge.arrowL->setColor(color_edge);
+    edge.arrowR->setColor(color_edge);
+    for (auto & line : edge.path) {
+      line->setColor(color_path);
+    }
   }
   context_->queueRender();
 }
@@ -151,23 +145,21 @@ void GraphDisplay::updateShapeVisibility()
     origin_axes_->getSceneNode()->setVisible(true);
   }
   bool draw_edge_lines = edge_show_property_->getBool();
-  for (auto &[id, line] : edge_lines_) {
-    line->setVisible(draw_edge_lines);
-  }
-
   bool draw_edge_arrows = (draw_edge_lines && (edge_arrow_property_->getFloat() > 0.));
-  for (auto & arrow : edge_arrows_) {
-    arrow->setVisible(draw_edge_arrows);
-  }
   bool draw_path_lines = path_show_property_->getBool();
-  for (auto & line : edge_paths_) {
-    line->setVisible(draw_path_lines);
+  for (auto &[id, edge] : edges_) {
+    edge.line->setVisible(draw_edge_lines);
+    edge.arrowL->setVisible(draw_edge_arrows);
+    edge.arrowR->setVisible(draw_edge_arrows);
+    for (auto & line : edge.path) {
+      line->setVisible(draw_path_lines);
+    }
   }
 
   Ogre::ColourValue color_node = node_color_property_->getOgreColor();
   color_node.a = (node_show_property_->getBool() ? node_alpha_property_->getFloat() : 0.);
-  for (auto & node : node_shapes_) {
-    node->setColor(color_node);
+  for (auto & [id, node] : nodes_) {
+    node.shape->setColor(color_node);
   }
 }
 
@@ -189,30 +181,24 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
   setTransformOk();
   pose_valid_ = true;
 
+  edges_.clear();
   nodes_.clear();
-  for (const auto & node : msg.nodes) {
-    const geometry_msgs::msg::Point & p = node.pose.position;
-    nodes_[node.id] = Ogre::Vector3(p.x, p.y, p.z);
-  }
-
   Ogre::ColourValue color_node = node_color_property_->getOgreColor();
   color_node.a = node_alpha_property_->getFloat();
   Ogre::Vector3 size_node(
     node_size_property_->getFloat(), node_size_property_->getFloat(),
     node_size_property_->getFloat());
-  node_shapes_.clear();
-  for (const auto & [id, position] : nodes_) {
-    auto shape = std::make_unique<rviz_rendering::Shape>(
+  for (const auto & node : msg.nodes) {
+    const geometry_msgs::msg::Point & p = node.pose.position;
+    NodeDisplay node_display;
+    node_display.shape = std::make_unique<rviz_rendering::Shape>(
       rviz_rendering::Shape::Cube, scene_manager_, scene_node_);
-    shape->setColor(color_node);
-    shape->setScale(size_node);
-    shape->setPosition(position);
-    node_shapes_.push_back(std::move(shape));
+    node_display.shape->setColor(color_node);
+    node_display.shape->setScale(size_node);
+    node_display.shape->setPosition(Ogre::Vector3(p.x, p.y, p.z));
+    nodes_.insert(std::make_pair(node.id, std::move(node_display)));
   }
 
-  edge_lines_.clear();
-  edge_arrows_.clear();
-  edge_paths_.clear();
   Ogre::ColourValue color_edge = edge_color_property_->getOgreColor();
   color_edge.a = edge_alpha_property_->getFloat();
   Ogre::Vector3 start, end, diff, unit, shaft, offsetL, offsetR, startL, startR;
@@ -220,17 +206,17 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
     if (auto it = nodes_.find(edge.start); it == nodes_.end()) {
       continue;
     } else {
-      start = it->second;
+      start = it->second.shape->getPosition();
     }
     if (auto it = nodes_.find(edge.end); it == nodes_.end()) {
       continue;
     } else {
-      end = it->second;
+      end = it->second.shape->getPosition();
     }
-    auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
-    line->setColor(color_edge);
-    line->setPoints(start, end);
-    edge_lines_.insert(std::make_pair(edge.id, std::move(line)));
+    EdgeDisplay edge_display;
+    edge_display.line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
+    edge_display.line->setColor(color_edge);
+    edge_display.line->setPoints(start, end);
     unit = end - start;
     unit.normalise();
     if (edge_arrow_property_->getFloat() > 0.) {
@@ -240,16 +226,14 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
         shaft.x * cos(+a) + shaft.y * -sin(+a), shaft.x * sin(+a) + shaft.y * cos(+a), shaft.z);
       offsetR = Ogre::Vector3(
         shaft.x * cos(-a) + shaft.y * -sin(-a), shaft.x * sin(-a) + shaft.y * cos(-a), shaft.z);
-      auto lineL = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
-      lineL->setColor(color_edge);
+      edge_display.arrowL = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
+      edge_display.arrowL->setColor(color_edge);
       startL = end - offsetL;
-      lineL->setPoints(startL, end);
-      edge_arrows_.push_back(std::move(lineL));
-      auto lineR = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
-      lineR->setColor(color_edge);
+      edge_display.arrowL->setPoints(startL, end);
+      edge_display.arrowR = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
+      edge_display.arrowR->setColor(color_edge);
       startR = end - offsetR;
-      lineR->setPoints(startR, end);
-      edge_arrows_.push_back(std::move(lineR));
+      edge_display.arrowR->setPoints(startR, end);
     }
 
     {
@@ -264,14 +248,16 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
         auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
         line->setPoints(p0, p1);
         line->setColor(color_path);
-        edge_paths_.push_back(std::move(line));
+        edge_display.path.push_back(std::move(line));
         p0 = p1;
       }
       auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
       line->setPoints(p0, end);
       line->setColor(color_path);
-      edge_paths_.push_back(std::move(line));
+      edge_display.path.push_back(std::move(line));
     }
+
+    edges_.insert(std::make_pair(edge.id, std::move(edge_display)));
   }
 
   coll_handler_->setMessage(message);

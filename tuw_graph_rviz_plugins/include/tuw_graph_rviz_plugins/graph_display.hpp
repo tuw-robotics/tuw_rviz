@@ -60,17 +60,26 @@ private Q_SLOTS:
   void updateShapeVisibility();
   void updateAxisGeometry();
   void updateEdgesGeometry();
-  void updatePathGeometry();
   void updateNodesGeometry();
 
 private:
   void setupSelectionHandler();
 
-  std::map<int64_t, Ogre::Vector3> nodes_;
-  std::vector<std::unique_ptr<rviz_rendering::Shape>> node_shapes_;
-  std::vector<std::unique_ptr<rviz_rendering::Line>> edge_arrows_;
-  std::map<int64_t, std::unique_ptr<rviz_rendering::Line>> edge_lines_;
-  std::vector<std::unique_ptr<rviz_rendering::Line>> edge_paths_;
+  struct EdgeDisplay{
+    uint64_t id;
+    std::unique_ptr<rviz_rendering::Line> line;
+    std::unique_ptr<rviz_rendering::Line> arrowL;
+    std::unique_ptr<rviz_rendering::Line> arrowR;
+    std::vector<std::unique_ptr<rviz_rendering::Line>> path;
+  };
+
+  struct NodeDisplay{
+    uint64_t id;
+    std::unique_ptr<rviz_rendering::Shape> shape;
+  };
+
+  std::map<int64_t, NodeDisplay> nodes_;
+  std::map<int64_t, EdgeDisplay> edges_;
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
   bool pose_valid_;
   GraphDisplaySelectionHandlerPtr coll_handler_;
