@@ -69,7 +69,7 @@ private:
   std::map<int64_t, Ogre::Vector3> nodes_;
   std::vector<std::unique_ptr<rviz_rendering::Shape>> node_shapes_;
   std::vector<std::unique_ptr<rviz_rendering::Line>> edge_arrows_;
-  std::vector<std::unique_ptr<rviz_rendering::Line>> edge_lines_;
+  std::map<int64_t, std::unique_ptr<rviz_rendering::Line>> edge_lines_;
   std::vector<std::unique_ptr<rviz_rendering::Line>> edge_paths_;
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
   bool pose_valid_;

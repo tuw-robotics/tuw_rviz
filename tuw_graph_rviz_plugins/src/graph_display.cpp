@@ -136,7 +136,7 @@ void GraphDisplay::updateEdgesGeometry()
 {
   Ogre::ColourValue color = edge_color_property_->getOgreColor();
   color.a = edge_alpha_property_->getFloat();
-  for (auto & edge : edge_lines_) {
+  for (auto &[id, edge] : edge_lines_) {
     edge->setColor(color.r, color.g, color.b, color.a);
   }
   for (auto & edge : edge_arrows_) {
@@ -151,7 +151,7 @@ void GraphDisplay::updateShapeVisibility()
     origin_axes_->getSceneNode()->setVisible(true);
   }
   bool draw_edge_lines = edge_show_property_->getBool();
-  for (auto & line : edge_lines_) {
+  for (auto &[id, line] : edge_lines_) {
     line->setVisible(draw_edge_lines);
   }
 
@@ -230,7 +230,7 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
     auto line = std::make_unique<rviz_rendering::Line>(scene_manager_, scene_node_);
     line->setColor(color_edge);
     line->setPoints(start, end);
-    edge_lines_.push_back(std::move(line));
+    edge_lines_.insert(std::make_pair(edge.id, std::move(line)));
     unit = end - start;
     unit.normalise();
     if (edge_arrow_property_->getFloat() > 0.) {
