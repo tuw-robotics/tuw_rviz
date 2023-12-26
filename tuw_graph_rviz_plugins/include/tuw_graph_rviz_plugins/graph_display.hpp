@@ -57,20 +57,29 @@ protected:
   void processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr message) override;
 
 private Q_SLOTS:
-  void updateShapeVisibility();
   void updateAxisGeometry();
+  void updateAxesVisibility();
   void updateEdgesGeometry();
+  void updateEdgesColor();
+  void updateEdgesVisibility();
+  void updatePathsGeometry();
+  void updatePathsColor();
+  void updatePathsVisibility();
   void updateNodesGeometry();
+  void updateNodesColor();
+  void updateNodesVisibility();
 
 private:
   void setupSelectionHandler();
 
   struct EdgeDisplay{
     uint64_t id;
-    std::unique_ptr<rviz_rendering::Line> line;
+    std::unique_ptr<rviz_rendering::Line> line0;
+    std::unique_ptr<rviz_rendering::Line> line1;
     std::unique_ptr<rviz_rendering::Line> arrowL;
     std::unique_ptr<rviz_rendering::Line> arrowR;
     std::vector<std::unique_ptr<rviz_rendering::Line>> path;
+    Ogre::Vector3 start, end, midpoint_offset;
   };
 
   struct NodeDisplay{
@@ -85,9 +94,10 @@ private:
   GraphDisplaySelectionHandlerPtr coll_handler_;
 
   rviz_common::properties::BoolProperty * edge_show_property_;
+  rviz_common::properties::FloatProperty * edge_overlay_offset_property_;
   rviz_common::properties::ColorProperty * edge_color_property_;
   rviz_common::properties::FloatProperty * edge_alpha_property_;
-  rviz_common::properties::FloatProperty * edge_arrow_property_;
+  rviz_common::properties::FloatProperty * edge_arrow_size_property_;
 
   rviz_common::properties::BoolProperty * path_show_property_;
   rviz_common::properties::ColorProperty * path_color_property_;
