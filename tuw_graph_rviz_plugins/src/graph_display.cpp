@@ -217,12 +217,12 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
   color_edge.a = edge_alpha_property_->getFloat();
   Ogre::Vector3 start, end, diff, unit, shaft, offsetL, offsetR, startL, startR;
   for (const auto & edge : msg.edges) {
-    if (auto it = nodes_.find(edge.nodes[0]); it == nodes_.end()) {
+    if (auto it = nodes_.find(edge.start); it == nodes_.end()) {
       continue;
     } else {
       start = it->second;
     }
-    if (auto it = nodes_.find(edge.nodes[1]); it == nodes_.end()) {
+    if (auto it = nodes_.find(edge.end); it == nodes_.end()) {
       continue;
     } else {
       end = it->second;
