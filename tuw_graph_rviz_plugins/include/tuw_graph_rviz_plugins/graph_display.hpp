@@ -7,6 +7,7 @@
 #include "rviz_common/interaction/forwards.hpp"
 #include "rviz_common/message_filter_display.hpp"
 #include "tuw_graph_msgs/msg/graph.hpp"
+#include "tuw_graph_msgs/msg/state.hpp"
 #include "tuw_graph_rviz_plugins/visibility_control.hpp"
 
 namespace rviz_rendering
@@ -71,6 +72,8 @@ private Q_SLOTS:
 
 private:
   void setupSelectionHandler();
+
+    rclcpp::Subscription<tuw_graph_msgs::msg::State>::SharedPtr sub_graph_state_;
 
   struct EdgeDisplay{
     uint64_t id;
