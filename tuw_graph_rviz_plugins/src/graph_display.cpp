@@ -150,8 +150,9 @@ void GraphDisplay::updateEdgesGeometry()
       Ogre::Vector3 diff = edge.end - edge.start;
       Ogre::Vector3 midpoint = edge.start + diff/2.;
       Ogre::Vector3 unit = diff / diff.length();
-      Ogre::Vector3 normal = Ogre::Vector3(unit.y, unit.x, unit.z);
-      edge.midpoint_offset = midpoint + normal * edge_overlay_offset;
+      Ogre::Vector3 normal = Ogre::Vector3(-unit.y, unit.x, 0);
+      normal.normalise();
+      edge.midpoint_offset = midpoint + normal * edge_overlay_offset * diff.length();
       edge.line0->setPoints(edge.start, edge.midpoint_offset);
       edge.line1->setPoints(edge.midpoint_offset, edge.end);
   }
