@@ -17,6 +17,7 @@ class Line;
 class Axes;
 class Shape;
 class Arrow;
+class MovableText;
 }  // namespace rviz_rendering
 
 namespace rviz_common
@@ -69,6 +70,8 @@ private Q_SLOTS:
   void updateNodesGeometry();
   void updateNodesColor();
   void updateNodesVisibility();
+  void updateNodesIdColor();
+  void updateNodesIdVisibility();
 
 private:
   void setupSelectionHandler();
@@ -88,6 +91,8 @@ private:
   struct NodeDisplay{
     uint64_t id;
     std::unique_ptr<rviz_rendering::Shape> shape;
+    std::unique_ptr<rviz_rendering::MovableText> text;
+    Ogre::SceneNode * scene_node;
   };
 
   std::map<int64_t, NodeDisplay> nodes_;
@@ -95,6 +100,9 @@ private:
   std::unique_ptr<rviz_rendering::Axes> origin_axes_;
   bool pose_valid_;
   GraphDisplaySelectionHandlerPtr coll_handler_;
+
+  rviz_common::properties::BoolProperty * node_id_show_property_;
+  rviz_common::properties::ColorProperty * node_id_color_property_;
 
   rviz_common::properties::BoolProperty * edge_show_property_;
   rviz_common::properties::FloatProperty * edge_overlay_offset_property_;

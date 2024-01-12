@@ -19,6 +19,7 @@
 #include "rviz_rendering/objects/billboard_line.hpp"
 #include "rviz_rendering/objects/line.hpp"
 #include "rviz_rendering/objects/shape.hpp"
+#include "rviz_rendering/objects/movable_text.hpp"
 #include "tuw_graph_rviz_plugins/graph_display_selection_handler.hpp"
 
 namespace tuw_graph_rviz_plugins
@@ -62,7 +63,7 @@ GraphDisplay::GraphDisplay() : origin_axes_(nullptr), pose_valid_(false)
     "Edges color", QColor(0, 255, 255), "Color to draw edges", this, SLOT(updateEdgesColor()));
 
   node_alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Nodes alpha", 1, "Amount of transparency to apply to the nodes.", this,
+    "Nodes alpha", 0.5, "Amount of transparency to apply to the nodes.", this,
     SLOT(updateNodesVisibility()));
   node_show_property_ = new rviz_common::properties::BoolProperty(
     "Draw Node", true, "Draws nodes.", this, SLOT(updateNodesVisibility()));
@@ -72,6 +73,10 @@ GraphDisplay::GraphDisplay() : origin_axes_(nullptr), pose_valid_(false)
     "Nodes color", QColor(255, 0, 255), "Color to draw nodes", this, SLOT(updateNodesColor()));
   node_size_property_ = new rviz_common::properties::FloatProperty(
     "Nodes size", 0.15f, "Node size.", this, SLOT(updateNodesGeometry()));
+  node_id_color_property_ = new rviz_common::properties::ColorProperty(
+    "Nodes ID color", QColor(128, 0, 255), "Color to draw nodes IDs", this, SLOT(updateNodesIdColor()));
+  node_id_show_property_ = new rviz_common::properties::BoolProperty(
+    "Draw Node ID", true, "Draws nodes IDs", this, SLOT(updateNodesIdVisibility()));
 }
 
 void GraphDisplay::onInitialize()
@@ -134,13 +139,33 @@ void GraphDisplay::updateNodesColor()
 {
   Ogre::ColourValue color_node = node_color_property_->getOgreColor();
   color_node.a = (node_show_property_->getBool() ? node_alpha_property_->getFloat() : 0.);
+  Ogre::ColourValue color_node_id = node_id_color_property_->getOgreColor();
   for (auto & [id, node] : nodes_) {
     node.shape->setColor(color_node);
+    node.text->setColor(color_node_id);
   }
 }
+
+
 void GraphDisplay::updateNodesVisibility()
 {
   updateNodesColor();
+}
+
+void GraphDisplay::updateNodesIdColor()
+{
+  Ogre::ColourValue color_node_id = node_id_color_property_->getOgreColor();
+  for (auto & [id, node] : nodes_) {
+    node.text->setColor(color_node_id);
+  }
+}
+
+void GraphDisplay::updateNodesIdVisibility()
+{
+  bool visible = node_id_show_property_->getBool();
+  for (auto & [id, node] : nodes_) {
+    node.scene_node->setVisible(visible);
+  }
 }
 
 void GraphDisplay::updateEdgesGeometry()
@@ -265,6 +290,11 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
     node_display.shape = std::make_unique<rviz_rendering::Shape>(
       rviz_rendering::Shape::Cube, scene_manager_, scene_node_);
     node_display.shape->setPosition(Ogre::Vector3(p.x, p.y, p.z));
+    node_display.text = std::make_unique<rviz_rendering::MovableText>(std::to_string(node.id), "Liberation Sans", 0.1f);
+    node_display.text->setTextAlignment(rviz_rendering::MovableText::H_CENTER, rviz_rendering::MovableText::V_BELOW);
+    node_display.scene_node = scene_node_->createChildSceneNode();
+    node_display.scene_node->setPosition(Ogre::Vector3(p.x, p.y, p.z));
+    node_display.scene_node->attachObject(node_display.text.get());
     nodes_.insert(std::make_pair(node.id, std::move(node_display)));
   }
 
@@ -316,6 +346,8 @@ void GraphDisplay::processMessage(tuw_graph_msgs::msg::Graph::ConstSharedPtr mes
   updateNodesColor();
   updateNodesGeometry();
   updateNodesVisibility();
+  updateNodesIdColor();
+  updateNodesIdVisibility();
 
   coll_handler_->setMessage(message);
 
