@@ -5,7 +5,7 @@
 
 #include <QtCore>
 
-#include "tuw_object_map_msgs/msg/object_map.hpp"
+#include "tuw_object_map_msgs/msg/objects.hpp"
 
 #include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/validate_floats.hpp"
@@ -21,7 +21,7 @@ namespace rviz_rendering
 namespace tuw_object_map_rviz_plugins::displays
 {
     // TODO: Replace RosTopicDisplay with MessageFilterDisplay
-    class ObjectMapDisplay : public rviz_common::RosTopicDisplay<tuw_object_map_msgs::msg::ObjectMap>
+    class ObjectMapDisplay : public rviz_common::RosTopicDisplay<tuw_object_map_msgs::msg::Objects>
     {
         Q_OBJECT
 
@@ -30,7 +30,7 @@ namespace tuw_object_map_rviz_plugins::displays
 
         ~ObjectMapDisplay();
 
-        void processMessage(const tuw_object_map_msgs::msg::ObjectMap::ConstSharedPtr msg) override;
+        void processMessage(const tuw_object_map_msgs::msg::Objects::ConstSharedPtr msg) override;
         void drawPlantWineRow(const tuw_object_map_msgs::msg::Object &msg);
         void drawTransitGravel(const tuw_object_map_msgs::msg::Object &msg);
 

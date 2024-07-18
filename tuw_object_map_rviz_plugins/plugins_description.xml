@@ -7,8 +7,8 @@
     type="tuw_object_map_rviz_plugins::displays::ObjectMapDisplay"
     base_class_type="rviz_common::Display">
     <description>
-      Displays a tuw_object_map_msgs::ObjectMap message.
+      Displays a tuw_object_map_msgs::Objects message.
     </description>
-    <message_type>tuw_object_map_msgs/msg/ObjectMap</message_type>
+    <message_type>tuw_object_map_msgs/msg/Objects</message_type>
   </class>
   </library>

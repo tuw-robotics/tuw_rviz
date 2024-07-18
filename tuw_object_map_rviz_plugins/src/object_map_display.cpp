@@ -21,7 +21,7 @@ namespace tuw_object_map_rviz_plugins::displays
         visuals_.clear();
     }
 
-    void ObjectMapDisplay::processMessage(tuw_object_map_msgs::msg::ObjectMap::ConstSharedPtr msg)
+    void ObjectMapDisplay::processMessage(tuw_object_map_msgs::msg::Objects::ConstSharedPtr msg)
     {
         visuals_.clear();
 
