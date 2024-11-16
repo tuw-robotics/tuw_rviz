@@ -1,0 +1,14 @@
+<library path="tuw_object_rviz_plugins">
+
+    <!-- Displays plugins -->
+  
+  <class
+    name="tuw_object_rviz_plugins/ShapeArray"
+    type="tuw_object_rviz_plugins::displays::ShapeArrayDisplay"
+    base_class_type="rviz_common::Display">
+    <description>
+      Displays a tuw_object_msgs::ShapeArray message.  &lt;a href="http://www.ros.org/wiki/rviz/DisplayTypes/Pose"&gt;More Information&lt;/a&gt;.
+    </description>
+    <message_type>tuw_object_msgs/msg/ShapeArray</message_type>
+  </class>
+  </library>
