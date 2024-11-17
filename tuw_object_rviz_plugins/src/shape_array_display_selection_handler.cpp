@@ -89,20 +89,7 @@ rviz_common::interaction::V_AABB ShapeArrayDisplaySelectionHandler::getAABBs(
         setting it to 'false' results in the wire box not properly following the pose arrow, but it
         would be less computationally expensive.
      */
-    bool derive_world_bounding_box = true;
-    if (display_->shape_property_->getOptionInt() == ShapeArrayDisplay::Arrow) {
-      aabbs.push_back(
-        display_->arrow_->getHead()->getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-      aabbs.push_back(
-        display_->arrow_->getShaft()->getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-    } else {
-      aabbs.push_back(
-        display_->axes_->getXShape().getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-      aabbs.push_back(
-        display_->axes_->getYShape().getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-      aabbs.push_back(
-        display_->axes_->getZShape().getEntity()->getWorldBoundingBox(derive_world_bounding_box));
-    }
+    void();
   }
   return aabbs;
 }
@@ -122,6 +109,7 @@ void ShapeArrayDisplaySelectionHandler::setMessage(
       rviz_common::quaternionMsgToOgre(message->pose.orientation));
   }
   */
+ void();
 }
 
 }  // namespace displays

@@ -55,57 +55,25 @@ namespace tuw_object_rviz_plugins
 namespace displays
 {
 
-ShapeArrayDisplay::ShapeArrayDisplay() : arrow_(nullptr), axes_(nullptr), shape_array_valid_(false)
+ShapeArrayDisplay::ShapeArrayDisplay() : shape_array_valid_(false)
 {
-  shape_property_ = new rviz_common::properties::EnumProperty(
-    "Shape", "Arrow", "Shape to display the pose as.", this, SLOT(updateShapeChoice()));
-  shape_property_->addOption("Arrow", Arrow);
-  shape_property_->addOption("Axes", Axes);
 
   color_property_ = new rviz_common::properties::ColorProperty(
-    "Color", QColor(255, 25, 0), "Color to draw the arrow.", this, SLOT(updateColorAndAlpha()));
+    "Color", QColor(255, 25, 0), "Color to draw the points.", this, SLOT(updateColorAndAlpha()));
 
   alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Alpha", 1, "Amount of transparency to apply to the arrow.", this, SLOT(updateColorAndAlpha()));
+    "Alpha", 1, "Amount of transparency to apply to the points.", this, SLOT(updateColorAndAlpha()));
   alpha_property_->setMin(0);
   alpha_property_->setMax(1);
 
-  shaft_length_property_ = new rviz_common::properties::FloatProperty(
-    "Shaft Length", 1, "Length of the arrow's shaft, in meters.", this,
+
+  point_radius_property_ = new rviz_common::properties::FloatProperty(
+    "Point Radius", 0.1f, "Radius of the Points, in meters.", this,
     SLOT(updateArrowGeometry()));
-
-  shaft_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Shaft Radius", 0.05f, "Radius of the arrow's shaft, in meters.", this,
-    SLOT(updateArrowGeometry()));
-
-  head_length_property_ = new rviz_common::properties::FloatProperty(
-    "Head Length", 0.3f, "Length of the arrow's head, in meters.", this,
-    SLOT(updateArrowGeometry()));
-
-  head_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Head Radius", 0.1f, "Radius of the arrow's head, in meters.", this,
-    SLOT(updateArrowGeometry()));
-
-  axes_length_property_ = new rviz_common::properties::FloatProperty(
-    "Axes Length", 1, "Length of each axis, in meters.", this, SLOT(updateAxisGeometry()));
-
-  axes_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Axes Radius", 0.1f, "Radius of each axis, in meters.", this, SLOT(updateAxisGeometry()));
 }
-
 void ShapeArrayDisplay::onInitialize()
 {
   MFDClass::onInitialize();
-  arrow_ = std::make_unique<rviz_rendering::Arrow>(
-    scene_manager_, scene_node_, shaft_length_property_->getFloat(),
-    shaft_radius_property_->getFloat(), head_length_property_->getFloat(),
-    head_radius_property_->getFloat());
-  arrow_->setDirection(Ogre::Vector3::UNIT_X);
-
-  axes_ = std::make_unique<rviz_rendering::Axes>(
-    scene_manager_, scene_node_, axes_length_property_->getFloat(),
-    axes_radius_property_->getFloat());
-
   updateShapeChoice();
   updateColorAndAlpha();
 }
@@ -123,8 +91,6 @@ void ShapeArrayDisplay::setupSelectionHandler()
 {
   coll_handler_ =
     rviz_common::interaction::createSelectionHandler<ShapeArrayDisplaySelectionHandler>(this, context_);
-  coll_handler_->addTrackedObjects(arrow_->getSceneNode());
-  coll_handler_->addTrackedObjects(axes_->getSceneNode());
 }
 
 void ShapeArrayDisplay::onDisable()
@@ -138,38 +104,46 @@ void ShapeArrayDisplay::updateColorAndAlpha()
   Ogre::ColourValue color = color_property_->getOgreColor();
   color.a = alpha_property_->getFloat();
 
-  arrow_->setColor(color);
+  //arrow_->setColor(color);
 
+  for (size_t i = 0; i < points_.size(); i++)
+  {
+    for (size_t j = 0; j < points_[i].size(); j++)
+    {
+      points_[i][j]->setColor(color);
+    }
+  }
   context_->queueRender();
 }
 
 void ShapeArrayDisplay::updateArrowGeometry()
 {
-  arrow_->set(
-    shaft_length_property_->getFloat(), shaft_radius_property_->getFloat(),
-    head_length_property_->getFloat(), head_radius_property_->getFloat());
+  for (size_t i = 0; i < points_.size(); i++)
+  {
+    for (size_t j = 0; j < points_[i].size(); j++)
+    {
+      // points_[i][j]
+      void();
+    }
+  }
   context_->queueRender();
 }
 
 void ShapeArrayDisplay::updateAxisGeometry()
 {
-  axes_->set(axes_length_property_->getFloat(), axes_radius_property_->getFloat());
+  float s = point_radius_property_->getFloat();
+  for (size_t i = 0; i < points_.size(); i++)
+  {
+    for (size_t j = 0; j < points_[i].size(); j++)
+    {
+      points_[i][j]->setScale(Ogre::Vector3(s,s,s));
+    }
+  }
   context_->queueRender();
 }
 
 void ShapeArrayDisplay::updateShapeChoice()
 {
-  bool use_arrow = (shape_property_->getOptionInt() == Arrow);
-
-  color_property_->setHidden(!use_arrow);
-  alpha_property_->setHidden(!use_arrow);
-  shaft_length_property_->setHidden(!use_arrow);
-  shaft_radius_property_->setHidden(!use_arrow);
-  head_length_property_->setHidden(!use_arrow);
-  head_radius_property_->setHidden(!use_arrow);
-
-  axes_length_property_->setHidden(use_arrow);
-  axes_radius_property_->setHidden(use_arrow);
 
   updateShapeVisibility();
 
@@ -178,14 +152,6 @@ void ShapeArrayDisplay::updateShapeChoice()
 
 void ShapeArrayDisplay::updateShapeVisibility()
 {
-  if (!shape_array_valid_) {
-    arrow_->getSceneNode()->setVisible(false);
-    axes_->getSceneNode()->setVisible(false);
-  } else {
-    bool use_arrow = (shape_property_->getOptionInt() == Arrow);
-    arrow_->getSceneNode()->setVisible(use_arrow);
-    axes_->getSceneNode()->setVisible(!use_arrow);
-  }
 }
 
 void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSharedPtr message)
@@ -209,6 +175,8 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
     return;
   }
   setTransformOk();
+  Ogre::ColourValue color = color_property_->getOgreColor();
+  color.a = alpha_property_->getFloat();
 
   points_.resize(message->shapes.size());
   for(size_t i = 0; i < message->shapes.size(); i++){
@@ -218,6 +186,7 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
         points_[i].push_back(std::make_unique<rviz_rendering::Shape>(rviz_rendering::Shape::Cube, scene_manager_, scene_node_));
       }
       points_[i][j]->setPosition(Ogre::Vector3(p.x, p.y, p.z));
+      points_[i][j]->setColor(color);
     }
   }
 

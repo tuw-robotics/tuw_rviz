@@ -98,24 +98,12 @@ private Q_SLOTS:
 private:
   void setupSelectionHandler();
 
-  std::unique_ptr<rviz_rendering::Arrow> arrow_;
   std::vector<std::vector<std::unique_ptr<rviz_rendering::Shape>>> points_;
-  std::unique_ptr<rviz_rendering::Axes> axes_;
   bool shape_array_valid_;
   ShapeArrayDisplaySelectionHandlerPtr coll_handler_;
-
-  rviz_common::properties::EnumProperty * shape_property_;
-
   rviz_common::properties::ColorProperty * color_property_;
   rviz_common::properties::FloatProperty * alpha_property_;
-
-  rviz_common::properties::FloatProperty * head_radius_property_;
-  rviz_common::properties::FloatProperty * head_length_property_;
-  rviz_common::properties::FloatProperty * shaft_radius_property_;
-  rviz_common::properties::FloatProperty * shaft_length_property_;
-
-  rviz_common::properties::FloatProperty * axes_length_property_;
-  rviz_common::properties::FloatProperty * axes_radius_property_;
+  rviz_common::properties::FloatProperty * point_radius_property_;
 
   friend class ShapeArrayDisplaySelectionHandler;
 };
