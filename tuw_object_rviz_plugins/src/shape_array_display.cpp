@@ -57,7 +57,7 @@ namespace displays
 ShapeArrayDisplay::ShapeArrayDisplay() : map_frame_billboard_line_(nullptr), shape_array_valid_(false)
 {
 
-  color_property_ = new rviz_common::properties::ColorProperty(
+  color_points_ = new rviz_common::properties::ColorProperty(
     "Color", QColor(255, 25, 0), "Color to draw the points.", this, SLOT(updateColorAndAlpha()));
 
   alpha_property_ = new rviz_common::properties::FloatProperty(
@@ -100,7 +100,7 @@ void ShapeArrayDisplay::onDisable()
 
 void ShapeArrayDisplay::updateColorAndAlpha()
 {
-  Ogre::ColourValue color = color_property_->getOgreColor();
+  Ogre::ColourValue color = color_points_->getOgreColor();
   color.a = alpha_property_->getFloat();
 
   //arrow_->setColor(color);
@@ -174,10 +174,11 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
     return;
   }
   setTransformOk();
-  Ogre::ColourValue color = color_property_->getOgreColor();
+  Ogre::ColourValue color = color_points_->getOgreColor();
   color.a = alpha_property_->getFloat();
 
   points_.resize(message->shapes.size());
+  line_strips_.resize(message->shapes.size());
   for(size_t i = 0; i < message->shapes.size(); i++){
     const auto &shape = message->shapes[i];
     for(size_t j = 0; j < shape.poses.size(); j++){
@@ -205,6 +206,16 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
       map_frame_billboard_line_->addPoint(Ogre::Vector3(p1.x,p1.y,p1.z));
       map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p1.y,p1.z));
       map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p0.y,p1.z));
+    }
+    if((shape.shape == tuw_object_msgs::msg::Shape::SHAPE_LINE_STRIP) && (shape.poses.size() >= 2)){
+      if(!line_strips_[i]){
+        line_strips_[i] = std::make_unique<rviz_rendering::BillboardLine>(scene_manager_, scene_node_);
+      }
+      line_strips_[i]->clear();
+      for(size_t j = 0; j < shape.poses.size(); j++){
+        const auto p = shape.poses[j].position;
+        line_strips_[i]->addPoint(Ogre::Vector3(p.x,p.y,p.z));
+      }
     }
   }
 

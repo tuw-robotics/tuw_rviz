@@ -97,10 +97,11 @@ private:
   void setupSelectionHandler();
 
   std::vector<std::vector<std::unique_ptr<rviz_rendering::Shape>>> points_;
+  std::vector<std::unique_ptr<rviz_rendering::BillboardLine>> line_strips_;
   std::unique_ptr<rviz_rendering::BillboardLine> map_frame_billboard_line_;
   bool shape_array_valid_;
   ShapeArrayDisplaySelectionHandlerPtr coll_handler_;
-  rviz_common::properties::ColorProperty * color_property_;
+  rviz_common::properties::ColorProperty * color_points_;
   rviz_common::properties::FloatProperty * alpha_property_;
   rviz_common::properties::FloatProperty * point_radius_property_;
 
