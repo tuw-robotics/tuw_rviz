@@ -43,9 +43,8 @@
 #include "rviz_common/properties/quaternion_property.hpp"
 #include "rviz_common/properties/vector_property.hpp"
 #include "rviz_common/validate_floats.hpp"
-#include "rviz_rendering/objects/arrow.hpp"
-#include "rviz_rendering/objects/axes.hpp"
 #include "rviz_rendering/objects/shape.hpp"
+#include "rviz_rendering/objects/billboard_line.hpp"
 #include "rviz_rendering/objects/point_cloud.hpp"
 #include "tuw_geometry_msgs/pose.hpp"
 #include "tuw_object_rviz_plugins/shape_array_display_selection_handler.hpp"
@@ -55,7 +54,7 @@ namespace tuw_object_rviz_plugins
 namespace displays
 {
 
-ShapeArrayDisplay::ShapeArrayDisplay() : shape_array_valid_(false)
+ShapeArrayDisplay::ShapeArrayDisplay() : map_frame_billboard_line_(nullptr), shape_array_valid_(false)
 {
 
   color_property_ = new rviz_common::properties::ColorProperty(
@@ -180,13 +179,32 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
 
   points_.resize(message->shapes.size());
   for(size_t i = 0; i < message->shapes.size(); i++){
-    for(size_t j = 0; j < message->shapes[i].poses.size(); j++){
-      const auto p = message->shapes[i].poses[j].position;
+    const auto &shape = message->shapes[i];
+    for(size_t j = 0; j < shape.poses.size(); j++){
+      const auto p = shape.poses[j].position;
       if(j >= points_[i].size()){
         points_[i].push_back(std::make_unique<rviz_rendering::Shape>(rviz_rendering::Shape::Cube, scene_manager_, scene_node_));
       }
       points_[i][j]->setPosition(Ogre::Vector3(p.x, p.y, p.z));
       points_[i][j]->setColor(color);
+    }
+    if((shape.type == tuw_object_msgs::msg::Shape::TYPE_MAP) && (shape.poses.size() == 2)){
+      if(!map_frame_billboard_line_){
+        map_frame_billboard_line_ = std::make_unique<rviz_rendering::BillboardLine>(scene_manager_, scene_node_);
+      }
+      map_frame_billboard_line_->clear();
+      const auto &p0 = message->shapes[i].poses[0].position;
+      const auto &p1 = message->shapes[i].poses[1].position;
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p0.y,p0.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p1.x,p0.y,p0.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p1.x,p1.y,p0.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p1.y,p0.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p0.y,p0.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p0.y,p1.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p1.x,p0.y,p1.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p1.x,p1.y,p1.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p1.y,p1.z));
+      map_frame_billboard_line_->addPoint(Ogre::Vector3(p0.x,p0.y,p1.z));
     }
   }
 
