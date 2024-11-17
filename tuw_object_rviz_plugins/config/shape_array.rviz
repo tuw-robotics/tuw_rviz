@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Pose1
+        - /ShapeArray1
       Splitter Ratio: 0.5
     Tree Height: 555
   - Class: rviz_common/Selection
@@ -51,12 +51,12 @@ Visualization Manager:
     - Alpha: 1
       Axes Length: 1
       Axes Radius: 0.10000000149011612
-      Class: tuw/Pose
+      Class: tuw_object_rviz_plugins/ShapeArray
       Color: 255; 25; 0
       Enabled: true
       Head Length: 0.30000001192092896
       Head Radius: 0.10000000149011612
-      Name: Pose
+      Name: ShapeArray
       Shaft Length: 1
       Shaft Radius: 0.05000000074505806
       Shape: Arrow
