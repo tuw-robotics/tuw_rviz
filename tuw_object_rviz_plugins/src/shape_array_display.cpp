@@ -57,7 +57,7 @@ namespace displays
 ShapeArrayDisplay::ShapeArrayDisplay() : map_frame_billboard_line_(nullptr), shape_array_valid_(false)
 {
 
-  color_points_ = new rviz_common::properties::ColorProperty(
+  color_property_ = new rviz_common::properties::ColorProperty(
     "Color", QColor(255, 25, 0), "Color to draw the points.", this, SLOT(updateColorAndAlpha()));
 
   alpha_property_ = new rviz_common::properties::FloatProperty(
@@ -100,7 +100,7 @@ void ShapeArrayDisplay::onDisable()
 
 void ShapeArrayDisplay::updateColorAndAlpha()
 {
-  Ogre::ColourValue color = color_points_->getOgreColor();
+  Ogre::ColourValue color = color_property_->getOgreColor();
   color.a = alpha_property_->getFloat();
 
   //arrow_->setColor(color);
@@ -174,7 +174,7 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
     return;
   }
   setTransformOk();
-  Ogre::ColourValue color = color_points_->getOgreColor();
+  Ogre::ColourValue color = color_property_->getOgreColor();
   color.a = alpha_property_->getFloat();
 
   points_.resize(message->shapes.size());

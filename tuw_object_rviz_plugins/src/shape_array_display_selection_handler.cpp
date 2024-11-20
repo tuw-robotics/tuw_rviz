@@ -95,7 +95,7 @@ rviz_common::interaction::V_AABB ShapeArrayDisplaySelectionHandler::getAABBs(
 }
 
 void ShapeArrayDisplaySelectionHandler::setMessage(
-  tuw_object_msgs::msg::ShapeArray::ConstSharedPtr message)
+  tuw_object_msgs::msg::ShapeArray::ConstSharedPtr)
 {
   // properties_.size() should only be > 0 after createProperties()
   // and before destroyProperties(), during which frame_property_,
