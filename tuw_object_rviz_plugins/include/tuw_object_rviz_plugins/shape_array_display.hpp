@@ -90,8 +90,7 @@ private Q_SLOTS:
   void updateShapeVisibility();
   void updateColorAndAlpha();
   void updateShapeChoice();
-  void updateAxisGeometry();
-  void updateArrowGeometry();
+  void updatePoseSize();
 
 private:
   void setupSelectionHandler();
@@ -103,7 +102,7 @@ private:
   ShapeArrayDisplaySelectionHandlerPtr coll_handler_;
   rviz_common::properties::ColorProperty * color_property_;
   rviz_common::properties::FloatProperty * alpha_property_;
-  rviz_common::properties::FloatProperty * point_radius_property_;
+  rviz_common::properties::FloatProperty * size_property_;
 
   friend class ShapeArrayDisplaySelectionHandler;
 };

@@ -66,9 +66,8 @@ ShapeArrayDisplay::ShapeArrayDisplay() : map_frame_billboard_line_(nullptr), sha
   alpha_property_->setMax(1);
 
 
-  point_radius_property_ = new rviz_common::properties::FloatProperty(
-    "Point Radius", 0.1f, "Radius of the Points, in meters.", this,
-    SLOT(updateArrowGeometry()));
+  size_property_ = new rviz_common::properties::FloatProperty(
+    "Size", 0.1f, "Size of the Poses, in meters.", this, SLOT(updatePoseSize()));
 }
 void ShapeArrayDisplay::onInitialize()
 {
@@ -115,22 +114,9 @@ void ShapeArrayDisplay::updateColorAndAlpha()
   context_->queueRender();
 }
 
-void ShapeArrayDisplay::updateArrowGeometry()
+void ShapeArrayDisplay::updatePoseSize()
 {
-  for (size_t i = 0; i < points_.size(); i++)
-  {
-    for (size_t j = 0; j < points_[i].size(); j++)
-    {
-      // points_[i][j]
-      void();
-    }
-  }
-  context_->queueRender();
-}
-
-void ShapeArrayDisplay::updateAxisGeometry()
-{
-  float s = point_radius_property_->getFloat();
+  float s = size_property_->getFloat();
   for (size_t i = 0; i < points_.size(); i++)
   {
     for (size_t j = 0; j < points_[i].size(); j++)
@@ -176,6 +162,7 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
   setTransformOk();
   Ogre::ColourValue color = color_property_->getOgreColor();
   color.a = alpha_property_->getFloat();
+  float s = size_property_->getFloat();
 
   points_.resize(message->shapes.size());
   line_strips_.resize(message->shapes.size());
@@ -188,6 +175,7 @@ void ShapeArrayDisplay::processMessage(tuw_object_msgs::msg::ShapeArray::ConstSh
       }
       points_[i][j]->setPosition(Ogre::Vector3(p.x, p.y, p.z));
       points_[i][j]->setColor(color);
+      points_[i][j]->setScale(Ogre::Vector3(s,s,s));
     }
     if((shape.type == tuw_object_msgs::msg::Shape::TYPE_MAP) && (shape.poses.size() == 2)){
       if(!map_frame_billboard_line_){
